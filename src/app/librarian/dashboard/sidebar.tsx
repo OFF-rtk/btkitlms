@@ -41,7 +41,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
                 </button>
                 <div className="flex items-center gap-2">
                     <ShieldCheck className="h-5 w-5 text-amber-700" />
-                    <span className="font-serif text-xl tracking-[0.2em] text-[#e8e4db] uppercase">Admin LMS</span>
+                    <span className="font-serif text-xl tracking-[0.2em] text-[#e8e4db] uppercase">Libris</span>
                 </div>
                 <div className="flex items-center gap-1">
                     <button className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-500">
@@ -72,8 +72,8 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
                     <div className="mb-2 flex h-10 w-10 items-center justify-center border border-amber-900/30 bg-[#0a0a0a] text-amber-700">
                         <ShieldCheck size={20} strokeWidth={1.5} />
                     </div>
-                    <span className="font-serif text-2xl tracking-[0.4em] text-[#e8e4db] uppercase">Admin LMS</span>
-                    <p className="text-[9px] uppercase tracking-[0.3em] text-stone-600 font-sans font-bold mt-1">Command Center</p>
+                    <span className="font-serif text-2xl tracking-[0.4em] text-[#e8e4db] uppercase">Libris</span>
+                    <p className="text-[9px] uppercase tracking-[0.3em] text-stone-600 font-sans font-bold mt-1">Admin Center</p>
                 </div>
 
                 {/* Navigation */}

@@ -42,7 +42,11 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
     useEffect(() => { setOrigin(window.location.origin); }, []);
 
     useEffect(() => {
-        document.body.style.overflow = isOpen ? "hidden" : "";
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
         return () => { document.body.style.overflow = ""; };
     }, [isOpen]);
 
@@ -118,17 +122,28 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
         finally { setSubmitting(false); }
     }
 
-    if (!isOpen) return null;
-
     const fieldClass = "w-full bg-stone-950 border border-stone-900 px-4 py-3 text-sm text-stone-300 font-serif outline-none focus:border-amber-900/50 transition-colors";
     const labelClass = "text-[9px] uppercase tracking-[0.2em] text-stone-700 font-black font-sans mb-2 block";
     const scannerUrl = sessionId && origin ? `${origin}/scanner?session=${sessionId}` : null;
 
     return (
         <>
-            <div className="fixed inset-0 z-40 bg-black/85 backdrop-blur-md transition-opacity duration-500 opacity-100" onClick={handleClose} />
-            <div className="fixed z-50 flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out bottom-0 left-0 right-0 max-h-[94vh] rounded-t-[2.5rem] border-t md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l translate-y-0 md:translate-x-0">
+            {/* ── Backdrop: Identical to BookSideSheet ── */}
+            <div
+                className={`fixed inset-0 z-[60] bg-black/60 backdrop-blur-md transition-opacity duration-500 ${
+                    isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+                }`}
+                onClick={handleClose}
+            />
 
+            {/* ── Panel: Identical Transition and Positioning ── */}
+            <div
+                className={`fixed z-[70] flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out
+                    bottom-0 left-0 right-0 max-h-[94vh] rounded-t-[2.5rem] border-t
+                    md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l
+                    ${isOpen ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full"}
+                `}
+            >
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-stone-900 bg-[#0d0d0d] p-8">
                     <div>
@@ -148,7 +163,7 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
                 <div className="flex-1 overflow-y-auto p-8 md:p-10 scrollbar-hide space-y-8">
 
                     {step === "scan" && (
-                        <>
+                        <div>
                             {/* QR Code Scanner */}
                             <div className="flex flex-col items-center gap-4 p-6 bg-white rounded-sm shadow-[0_0_40px_rgba(255,255,255,0.03)]">
                                 {scannerUrl ? (
@@ -174,40 +189,28 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
                                         placeholder="e.g. 978-01..."
                                         className="flex-1 bg-stone-950 border border-stone-900 px-4 py-3 text-sm text-stone-300 outline-none focus:border-amber-900 transition-colors"
                                     />
-                                    <button onClick={handleFetch} disabled={!manualIsbn.trim() || fetching} className="bg-stone-900 px-4 text-stone-600 border border-stone-800 transition-colors hover:text-amber-600 disabled:opacity-50">
+                                    <button onClick={handleFetch} disabled={!manualIsbn.trim() || fetching} className="bg-stone-900 px-4 text-stone-600 border border-stone-800 transition-colors hover:text-amber-600 disabled:opacity-50 rounded-sm">
                                         {fetching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
                                     </button>
                                 </div>
                                 <p className="mt-2 text-[9px] text-stone-700 font-sans tracking-wide">
-                                    We&apos;ll try to auto-fill details from Google Books.
+                                    Archive will attempt to auto-fill details from university records.
                                 </p>
                             </div>
-                        </>
+                        </div>
                     )}
 
                     {step === "form" && (
-                        <>
-                            {/* Back button */}
+                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                             <button onClick={() => { setStep("scan"); setAutoFilled(false); }} className="text-[9px] font-sans font-black uppercase tracking-[0.2em] text-stone-600 hover:text-amber-600 transition-colors">
                                 ← Back to scanner
                             </button>
 
-                            {/* Auto-fill notice */}
                             {autoFilled && (
                                 <div className="rounded-sm bg-emerald-950/10 border border-emerald-900/20 p-4 shadow-inner">
                                     <p className="text-[10px] text-emerald-600 font-sans font-black uppercase tracking-widest">
-                                        ✓ Details auto-filled from Google Books
+                                        ✓ Details auto-filled from registry
                                     </p>
-                                    <p className="text-[9px] text-stone-600 font-sans mt-1 tracking-wide">Review and edit as needed, then fill in copies and shelf location.</p>
-                                </div>
-                            )}
-
-                            {!autoFilled && (
-                                <div className="rounded-sm bg-amber-950/10 border border-amber-900/20 p-4 shadow-inner">
-                                    <p className="text-[10px] text-amber-600 font-sans font-black uppercase tracking-widest">
-                                        Book not found on Google Books
-                                    </p>
-                                    <p className="text-[9px] text-stone-600 font-sans mt-1 tracking-wide">Please enter the book details manually below.</p>
                                 </div>
                             )}
 
@@ -223,7 +226,7 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
                                 </div>
 
                                 <div className="pt-4 border-t border-stone-900/50">
-                                    <p className="text-[8px] uppercase tracking-[0.3em] text-stone-700 font-black font-sans mb-4">Shelf Location</p>
+                                    <p className="text-[8px] uppercase tracking-[0.3em] text-stone-700 font-black font-sans mb-4">Vault Location</p>
                                     <div className="grid grid-cols-3 gap-3">
                                         <div><label className={labelClass}>Alley</label><input type="text" value={form.location_alley} onChange={(e) => update("location_alley", e.target.value)} placeholder="A1" className={fieldClass} /></div>
                                         <div><label className={labelClass}>Column</label><input type="text" value={form.location_column} onChange={(e) => update("location_column", e.target.value)} placeholder="C3" className={fieldClass} /></div>
@@ -232,23 +235,21 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
                                 </div>
                             </div>
 
-                            {/* Error */}
                             {error && (
                                 <div className="flex items-center gap-3 rounded-sm bg-red-950/10 border border-red-900/20 p-4 text-xs text-red-500 font-sans">
                                     <AlertCircle size={14} className="shrink-0" /> {error}
                                 </div>
                             )}
 
-                            {/* Submit */}
                             <button
                                 onClick={handleSubmit}
                                 disabled={submitting}
                                 className="flex w-full items-center justify-center gap-4 bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border border-amber-700/20 px-10 py-5 font-black text-amber-50 uppercase tracking-[0.4em] text-[10px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-2xl transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
                             >
                                 {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <BookPlus className="h-5 w-5" />}
-                                {submitting ? "Adding..." : "Add to Catalog"}
+                                {submitting ? "Inscribing..." : "Add to Catalog"}
                             </button>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
