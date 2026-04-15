@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, UserPlus, Mail, Lock, User, CheckCircle } from "lucide-react";
+import { BookOpen, UserPlus, Mail, Lock, User, CheckCircle, AlertCircle, Feather } from "lucide-react";
 
 export default function RegisterPage() {
     const params = useParams();
@@ -18,6 +18,9 @@ export default function RegisterPage() {
 
     const roleLabel = role === "librarian" ? "Librarian" : "Student";
 
+    // ------------------------------------------------------------------
+    // BACKEND LOGIC BOUNDARY (UNCHANGED)
+    // ------------------------------------------------------------------
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setError("");
@@ -31,7 +34,7 @@ export default function RegisterPage() {
                     full_name: fullName,
                     email,
                     password,
-                    role, /* "student" or "librarian" — sent as-is */
+                    role,
                 }),
             });
 
@@ -43,49 +46,41 @@ export default function RegisterPage() {
                 return;
             }
 
-            /* Email confirmation required */
             if (data.emailConfirmation) {
                 setEmailSent(true);
                 setLoading(false);
                 return;
             }
 
-            /* No email confirmation — go straight to onboarding */
             window.location.href = `/onboarding/${role}`;
         } catch {
             setError("Something went wrong. Please try again.");
             setLoading(false);
         }
     }
+    // ------------------------------------------------------------------
 
-    /* ── Registration complete screen ── */
+    /* ── Registration complete screen (Themed & Mobile Ready) ── */
     if (emailSent) {
         return (
-            <div className="auth-gradient relative flex items-center justify-center overflow-hidden px-4">
-                <div className="orb orb-1" />
-                <div className="orb orb-2" />
+            <div className="min-h-screen flex items-center justify-center bg-[#1a1a1a] text-[#e0d6c8] font-serif relative overflow-hidden px-6">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#2b2622] via-[#1a1a1a] to-[#0a0a0a]"></div>
+                <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/aged-paper.png")' }}></div>
 
-                <div className="glass-card relative z-10 w-full max-w-md p-8 sm:p-10 text-center">
-                    <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/30">
-                        <CheckCircle className="h-8 w-8 text-green-400" />
+                <div className="relative z-10 w-full max-w-md p-8 sm:p-10 text-center bg-[#26221f] border border-[#3e352c] rounded-sm shadow-2xl">
+                    <div className="mx-auto mb-6 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-[#3e352c] border border-[#d4af37]/30">
+                        <CheckCircle className="h-7 w-7 sm:h-8 sm:w-8 text-[#d4af37]" />
                     </div>
-                    <h1 className="mb-2 text-2xl font-bold text-white">
-                        Registration Complete
+                    <h1 className="mb-3 text-2xl sm:text-3xl font-normal text-[#e8e4db]">
+                        Ledger Inscribed
                     </h1>
-                    <p className="mb-6 text-sm text-muted leading-relaxed">
-                        Your account has been created successfully.
-                        <br />
-                        Continue to set up your profile.
+                    <p className="mb-8 text-[#8c8273] text-sm sm:text-base leading-relaxed font-sans font-light">
+                        Your credentials have been securely recorded in the university archives. 
+                        <br /><br />
+                        You may now proceed to configure your academic profile.
                     </p>
-                    {/* TODO: Re-enable when email verification is turned back on
-                    <p className="mb-6 text-sm text-muted leading-relaxed">
-                        We&apos;ve sent a confirmation link to{" "}
-                        <span className="font-medium text-white">{email}</span>.
-                        Please verify your email to activate your account.
-                    </p>
-                    */}
-                    <a href={`/onboarding/${role}`} className="auth-btn inline-block text-center">
-                        Continue to Onboarding
+                    <a href={`/onboarding/${role}`} className="w-full flex items-center justify-center gap-3 bg-[#3e352c] hover:bg-[#4a4035] border border-[#5c4f42] text-[#e8e4db] font-serif py-3 sm:py-3.5 rounded-sm transition-all hover:border-[#d4af37]/50 uppercase tracking-widest text-xs sm:text-sm">
+                        Proceed to Onboarding
                     </a>
                 </div>
             </div>
@@ -94,109 +89,177 @@ export default function RegisterPage() {
 
     /* ── Registration form ── */
     return (
-        <div className="auth-gradient relative flex items-center justify-center overflow-hidden px-4">
-            <div className="orb orb-1" />
-            <div className="orb orb-2" />
+        <div className="min-h-screen flex w-full bg-[#1a1a1a] text-[#e0d6c8] selection:bg-[#5c4033] selection:text-[#f4f1ea] font-serif">
+            
+            {/* LEFT SIDE: The Grand Library (Hidden on smaller screens) */}
+            <div className="hidden lg:flex w-1/2 relative flex-col justify-between overflow-hidden p-12 xl:p-16 border-r border-[#3e352c]">
+                
+                {/* Historic Library Image Background */}
+                <div 
+                    className="absolute inset-0 bg-cover bg-center blur-md scale-105 z-0" 
+                    style={{ backgroundImage: "url('/images/login.png')" }}
+                ></div>
+                <div className="absolute inset-0 bg-black/80 z-0"></div>
+                <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay z-0" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/aged-paper.png")' }}></div>
 
-            <div className="glass-card relative z-10 w-full max-w-md p-8 sm:p-10">
-                {/* Header */}
-                <div className="mb-8 text-center">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-dark">
-                        <BookOpen className="h-7 w-7 text-white" />
+                <div className="relative z-10 flex items-center gap-4 text-[#d4af37]">
+                    <div className="p-2 border border-[#d4af37]/30 rounded-sm">
+                        <BookOpen size={32} strokeWidth={1.5} />
                     </div>
-                    <h1 className="mb-1 text-2xl font-bold text-white">
-                        Create your account
-                    </h1>
-                    <p className="text-sm text-muted">Join the library management system</p>
-                    <div className="mt-3 flex justify-center">
-                        <span className="role-badge">{roleLabel}</span>
-                    </div>
+                    <span className="text-2xl xl:text-3xl font-normal tracking-widest uppercase">Libris</span>
                 </div>
 
-                {error && <div className="auth-error mb-6">{error}</div>}
-
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                        <label htmlFor="fullName" className="auth-label">
-                            Full name
-                        </label>
-                        <div className="relative">
-                            <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-                            <input
-                                id="fullName"
-                                type="text"
-                                required
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                placeholder="Jane Doe"
-                                className="auth-input pl-10"
-                            />
-                        </div>
+                <div className="relative z-10 text-[#f4f1ea] max-w-lg">
+                    <div className="mb-6 inline-flex items-center gap-2 border-b border-[#d4af37]/50 pb-1 text-xs xl:text-sm font-semibold tracking-widest text-[#d4af37] uppercase">
+                        <Feather size={14} />
+                        {roleLabel} Registration
                     </div>
+                    <h1 className="text-4xl xl:text-5xl font-normal leading-tight mb-6 text-[#e8e4db] drop-shadow-md">
+                        The archives await.
+                    </h1>
+                    <p className="text-[#a89f91] text-base xl:text-lg leading-relaxed font-sans font-light">
+                        {role === "librarian" 
+                            ? "Sign up to manage the library and approve book returns."
+                            : "Sign up to borrow books and track your reading."}
+                    </p>
+                </div>
 
-                    <div>
-                        <label htmlFor="email" className="auth-label">
-                            Email address
-                        </label>
-                        <div className="relative">
-                            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-                            <input
-                                id="email"
-                                type="email"
-                                required
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@university.edu"
-                                className="auth-input pl-10"
-                            />
+                <div className="relative z-10 text-[#7a7265] text-[10px] xl:text-xs font-sans uppercase tracking-widest">
+                    library • BTKIT,Dwarahat • PROJECT libris
+                </div>
+            </div>
+
+            {/* RIGHT SIDE: The Ledger Form (Fully Mobile Responsive) */}
+            <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 md:px-16 lg:px-20 xl:px-24 w-full md:max-w-xl lg:max-w-none mx-auto bg-[#1a1a1a] relative min-h-screen py-10">
+                
+                {/* Subtle vignette effect for mobile depth */}
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-transparent to-[#111111]/90"></div>
+
+                {/* Mobile Header (Shows only on small screens) */}
+                <div className="flex lg:hidden items-center gap-3 mb-10 text-[#d4af37] relative z-10">
+                    <BookOpen size={28} strokeWidth={1.5} />
+                    <span className="text-xl sm:text-2xl font-normal tracking-widest uppercase">Libris</span>
+                </div>
+
+                <div className="w-full max-w-sm sm:max-w-md lg:max-w-sm xl:max-w-md mx-auto relative z-10">
+                    <h2 className="text-3xl sm:text-4xl font-normal mb-2 sm:mb-3 text-[#e8e4db]">Request Access.</h2>
+                    <p className="text-[#8c8273] text-sm sm:text-base mb-8 sm:mb-10 font-sans font-light flex items-center gap-2">
+                        Submit details to the <span className="font-semibold text-[#d4af37] italic">{roleLabel}</span> desk.
+                    </p>
+
+                    {error && (
+                        <div className="mb-6 sm:mb-8 flex items-center gap-3 bg-[#3e2c2c] p-3 sm:p-4 text-xs sm:text-sm font-sans text-[#e6b8b8] border-l-2 border-[#a34444]">
+                            <AlertCircle size={16} className="shrink-0" />
+                            <span>{error}</span>
                         </div>
-                    </div>
-
-                    <div>
-                        <label htmlFor="password" className="auth-label">
-                            Password
-                        </label>
-                        <div className="relative">
-                            <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-                            <input
-                                id="password"
-                                type="password"
-                                required
-                                minLength={6}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Min. 6 characters"
-                                className="auth-input pl-10"
-                            />
-                        </div>
-                    </div>
-
-                    <button type="submit" disabled={loading} className="auth-btn">
-                        <span className="flex items-center justify-center gap-2">
-                            <UserPlus className="h-4 w-4" />
-                            {loading ? "Creating account…" : "Create Account"}
-                        </span>
-                    </button>
-                </form>
-
-                <p className="mt-6 text-center text-sm text-muted">
-                    Already have an account?{" "}
-                    <Link href={`/auth/${role}/login`} className="auth-link">
-                        Sign in
-                    </Link>
-                </p>
-
-                <p className="mt-3 text-center text-xs text-muted/60">
-                    {role === "student" ? (
-                        <Link href="/auth/librarian/register" className="auth-link text-xs">
-                            Register as Librarian →
-                        </Link>
-                    ) : (
-                        <Link href="/auth/student/register" className="auth-link text-xs">
-                            Register as Student →
-                        </Link>
                     )}
-                </p>
+
+                    <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6 font-sans">
+                        
+                        {/* Full Name Input */}
+                        <div className="space-y-1.5 sm:space-y-2">
+                            <label htmlFor="fullName" className="text-[10px] sm:text-xs font-semibold tracking-widest text-[#a89f91] uppercase">
+                                Full Name
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-[#5c544d]">
+                                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                                </div>
+                                <input
+                                    id="fullName"
+                                    type="text"
+                                    required
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                    placeholder="Jane Doe"
+                                    className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-[#26221f] border border-[#3e352c] text-base sm:text-sm text-[#e8e4db] focus:ring-1 focus:ring-[#d4af37] focus:border-[#d4af37] outline-none transition-all placeholder-[#4a423b] rounded-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Email Input */}
+                        <div className="space-y-1.5 sm:space-y-2">
+                            <label htmlFor="email" className="text-[10px] sm:text-xs font-semibold tracking-widest text-[#a89f91] uppercase">
+                                Email
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-[#5c544d]">
+                                    <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+                                </div>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="student@university.edu"
+                                    className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-[#26221f] border border-[#3e352c] text-base sm:text-sm text-[#e8e4db] focus:ring-1 focus:ring-[#d4af37] focus:border-[#d4af37] outline-none transition-all placeholder-[#4a423b] rounded-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Password Input */}
+                        <div className="space-y-1.5 sm:space-y-2">
+                            <label htmlFor="password" className="text-[10px] sm:text-xs font-semibold tracking-widest text-[#a89f91] uppercase">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-[#5c544d]">
+                                  <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+                                </div>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    required
+                                    minLength={6}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Min. 6 characters"
+                                    className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 bg-[#26221f] border border-[#3e352c] text-base sm:text-sm text-[#e8e4db] focus:ring-1 focus:ring-[#d4af37] focus:border-[#d4af37] outline-none transition-all placeholder-[#4a423b] rounded-sm"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full flex items-center justify-center gap-2 sm:gap-3 bg-[#3e352c] hover:bg-[#4a4035] border border-[#5c4f42] disabled:bg-[#26221f] disabled:text-[#5c544d] disabled:border-[#3e352c] disabled:cursor-not-allowed text-[#e8e4db] font-serif py-3 sm:py-3.5 rounded-sm transition-all mt-6 sm:mt-8 hover:border-[#d4af37]/50 active:scale-[0.98]"
+                        >
+                           <UserPlus className="w-4 h-4 sm:w-5 sm:h-5" />
+                            <span className="tracking-wider uppercase text-xs sm:text-sm">
+                                {loading ? "Recording Details…" : "Create Account"}
+                            </span>
+                        </button>
+                    </form>
+
+                    {/* Registration Link */}
+                    <div className="mt-8 sm:mt-10 text-center font-sans">
+                        <p className="text-xs sm:text-sm text-[#7a7265]">
+                            Already hold credentials?{" "}
+                            <Link href={`/auth/${role}/login`} className="text-[#d4af37] hover:text-[#f4e094] font-semibold transition-colors border-b border-[#d4af37]/30 hover:border-[#d4af37] pb-0.5">
+                                Sign in here.
+                            </Link>
+                        </p>
+                    </div>
+
+                    {/* Portal Switcher */}
+                    <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-[#2b2622]">
+                        <div className="flex flex-col items-center gap-3 sm:gap-4">
+                            <span className="text-[10px] sm:text-xs font-sans tracking-widest text-[#5c544d] uppercase">Or access alternate archives</span>
+                            {role === "student" ? (
+                                <Link href="/auth/librarian/register" className="font-serif text-xs sm:text-sm italic text-[#8c8273] hover:text-[#d4af37] transition-colors py-1">
+                                    Register at Librarian Desk &rarr;
+                                </Link>
+                            ) : (
+                                <Link href="/auth/student/register" className="font-serif text-xs sm:text-sm italic text-[#8c8273] hover:text-[#d4af37] transition-colors py-1">
+                                    Register at Student Desk &rarr;
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     );
