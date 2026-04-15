@@ -25,7 +25,11 @@ export default function ProcessQueueSideSheet({ isOpen, onClose }: ProcessQueueS
     const [error, setError] = useState("");
 
     useEffect(() => {
-        document.body.style.overflow = isOpen ? "hidden" : "";
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
         return () => { document.body.style.overflow = ""; };
     }, [isOpen]);
 
@@ -60,13 +64,24 @@ export default function ProcessQueueSideSheet({ isOpen, onClose }: ProcessQueueS
         finally { setProcessing(null); }
     }
 
-    if (!isOpen) return null;
-
     return (
         <>
-            <div className="fixed inset-0 z-40 bg-black/85 backdrop-blur-md transition-opacity duration-500 opacity-100" onClick={onClose} />
-            <div className="fixed z-50 flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out bottom-0 left-0 right-0 max-h-[94vh] rounded-t-[2.5rem] border-t md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l translate-y-0 md:translate-x-0">
+            {/* ── Backdrop: Exactly matching BookSlideSheet ── */}
+            <div
+                className={`fixed inset-0 z-[60] bg-black/60 backdrop-blur-md transition-opacity duration-500 ${
+                    isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+                }`}
+                onClick={onClose}
+            />
 
+            {/* ── Panel: Replicating translate, z-index, and responsive rounding ── */}
+            <div
+                className={`fixed z-[70] flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out
+                    bottom-0 left-0 right-0 max-h-[94vh] rounded-t-[2.5rem] border-t
+                    md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l
+                    ${isOpen ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full"}
+                `}
+            >
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-stone-900 bg-[#0d0d0d] p-8">
                     <div>
@@ -99,8 +114,8 @@ export default function ProcessQueueSideSheet({ isOpen, onClose }: ProcessQueueS
                             <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-stone-900/50 bg-stone-950/40 shadow-inner">
                                 <Check className="h-7 w-7 text-emerald-800" />
                             </div>
-                            <h3 className="text-lg italic text-[#e8e4db] tracking-tight mb-2">All caught up</h3>
-                            <p className="text-[10px] text-stone-600 font-sans tracking-wide">No pending requests in the queue.</p>
+                            <h3 className="text-lg italic text-[#e8e4db] tracking-tight mb-2 font-serif">All caught up</h3>
+                            <p className="text-[10px] text-stone-600 font-sans tracking-wide uppercase">No pending requests in the queue.</p>
                         </div>
                     )}
 
@@ -108,7 +123,7 @@ export default function ProcessQueueSideSheet({ isOpen, onClose }: ProcessQueueS
                         const isProcessing = processing === req.id;
                         const noStock = req.books.available_copies < 1;
                         return (
-                            <div key={req.id} className="border border-stone-900 bg-[#0d0d0d] p-5 shadow-inner hover:border-stone-800 transition-all">
+                            <div key={req.id} className="border border-stone-900 bg-[#0d0d0d] p-5 shadow-inner hover:border-stone-800 transition-all rounded-sm">
                                 <div className="flex items-start justify-between gap-3 mb-4">
                                     <div className="min-w-0 flex-1">
                                         <h4 className="text-sm italic text-[#e8e4db] tracking-tight leading-tight line-clamp-1 font-serif">{req.books.title}</h4>
@@ -119,10 +134,10 @@ export default function ProcessQueueSideSheet({ isOpen, onClose }: ProcessQueueS
                                     )}
                                 </div>
 
-                                <div className="flex items-center gap-4 mb-4 text-[9px] font-sans text-stone-600 tracking-wide">
-                                    <span className="flex items-center gap-1.5"><User size={10} className="text-stone-700" />{req.students.full_name}</span>
-                                    <span className="flex items-center gap-1.5"><Clock size={10} className="text-stone-700" />{req.requested_days}d</span>
-                                    <span className="flex items-center gap-1.5"><BookOpen size={10} className="text-stone-700" />{req.students.roll_number}</span>
+                                <div className="flex items-center gap-4 mb-4 text-[9px] font-sans text-stone-600 tracking-wide uppercase">
+                                    <span className="flex items-center gap-1.5"><User size={10} className="text-amber-900/50" />{req.students.full_name}</span>
+                                    <span className="flex items-center gap-1.5"><Clock size={10} className="text-amber-900/50" />{req.requested_days}d</span>
+                                    <span className="flex items-center gap-1.5"><BookOpen size={10} className="text-amber-900/50" />{req.students.roll_number}</span>
                                 </div>
 
                                 <div className="flex gap-2">
