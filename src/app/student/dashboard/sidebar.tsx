@@ -60,7 +60,7 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
             {/* ── Sidebar ── */}
             <aside
                 className={`
-                    fixed top-0 left-0 z-50 flex h-screen w-80 lg:w-[24rem] flex-col bg-[#0a0a0a]
+                    fixed top-0 left-0 z-50 flex h-screen w-64 flex-col bg-[#0a0a0a]
                     transition-transform duration-500 ease-in-out lg:translate-x-0 lg:border-none
                     ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
                 `}
@@ -86,8 +86,8 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
                                 href={item.href}
                                 className={`
                                     group flex items-center gap-4 rounded-sm px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] transition-all
-                                    ${isActive 
-                                        ? "bg-amber-900/10 text-amber-600 border-l-2 border-amber-700 shadow-[inset_10px_0_15px_-10px_rgba(180,83,9,0.1)]" 
+                                    ${isActive
+                                        ? "bg-amber-900/10 text-amber-600 border-l-2 border-amber-700 shadow-[inset_10px_0_15px_-10px_rgba(180,83,9,0.1)]"
                                         : "text-stone-500 hover:bg-stone-900 hover:text-[#e8e4db] border-l-2 border-transparent"}
                                 `}
                             >

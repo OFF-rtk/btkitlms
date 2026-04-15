@@ -51,7 +51,7 @@ export default async function StudentDashboardLayout({
                     <StudentSidebar studentName={studentName} />
 
                     {/* 2. Added lg:border-none and removed any potential outline */}
-                    <main className="flex-1 min-w-0 lg:ml-96 pt-16 lg:pt-0 min-h-screen relative border-none outline-none">
+                    <main className="flex-1 min-w-0 lg:ml-64 pt-16 lg:pt-0 min-h-screen relative border-none outline-none">
                         {/* 3. Potential Culprit: DesktopTopIcons often has a bottom border. 
                            If the line is horizontal, it's this. If vertical, it's the Sidebar. */}
                         <DesktopTopIcons />
