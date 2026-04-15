@@ -1,0 +1,157 @@
+-- 1. State Enums
+CREATE TYPE request_type AS ENUM ('issue', 'return');
+CREATE TYPE request_status AS ENUM ('pending', 'approved', 'rejected');
+CREATE TYPE borrowing_status AS ENUM ('active', 'returned', 'overdue');
+
+-- 2. Identity Tables (Split for cleaner data shapes)
+CREATE TABLE students (
+  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  full_name TEXT NOT NULL,
+  roll_number TEXT UNIQUE NOT NULL,
+  course TEXT, -- e.g., B.Tech, M.Sc
+  branch TEXT, -- e.g., CS, Mechanical
+  year INTEGER, 
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE librarians (
+  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  full_name TEXT NOT NULL,
+  employee_id TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. The Catalog (With Netflix-Style Collections Array)
+CREATE TABLE books (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  isbn TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  author TEXT NOT NULL,
+  cover_url TEXT,
+  category TEXT,
+  collections TEXT[], -- Array for ["Trending", "New Arrival", "Teacher Rec"]
+  total_copies INTEGER DEFAULT 1,
+  available_copies INTEGER DEFAULT 1,
+  location_alley TEXT, 
+  location_column TEXT,
+  location_shelf TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Discovery Features (Cart & Wishlist)
+CREATE TABLE wishlist (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  student_id UUID REFERENCES students(id) ON DELETE CASCADE,
+  book_id UUID REFERENCES books(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(student_id, book_id) -- Prevents duplicate wishlisting
+);
+
+CREATE TABLE cart (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  student_id UUID REFERENCES students(id) ON DELETE CASCADE,
+  book_id UUID REFERENCES books(id) ON DELETE CASCADE,
+  requested_days INTEGER DEFAULT 7, -- How long they want it for
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(student_id, book_id)
+);
+
+-- 5. The Operational Core (Separating Intent from Reality)
+-- 'requests' tracks the intent (from the Cart)
+CREATE TABLE requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  student_id UUID REFERENCES students(id),
+  book_id UUID REFERENCES books(id),
+  type request_type NOT NULL,
+  requested_days INTEGER, -- Pulled from the cart
+  status request_status DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 'borrowings' tracks the physical reality (Creates Overages)
+CREATE TABLE borrowings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  student_id UUID REFERENCES students(id),
+  book_id UUID REFERENCES books(id),
+  request_id UUID REFERENCES requests(id),
+  issued_at TIMESTAMPTZ DEFAULT NOW(),
+  due_date TIMESTAMPTZ NOT NULL,
+  returned_at TIMESTAMPTZ,
+  status borrowing_status DEFAULT 'active'
+);
+
+CREATE OR REPLACE FUNCTION flag_overdue_books()
+RETURNS void AS $$
+BEGIN
+  UPDATE borrowings
+  SET status = 'overdue'
+  WHERE status = 'active' AND due_date < NOW();
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_admin_dashboard_stats()
+RETURNS JSON AS $$
+DECLARE
+  total_inventory INTEGER;
+  books_issued INTEGER;
+  active_students INTEGER;
+  total_overdue INTEGER;
+  queue_length INTEGER;
+BEGIN
+  -- Total physical books
+  SELECT SUM(total_copies) INTO total_inventory FROM books;
+  
+  -- Currently issued books
+  SELECT COUNT(*) INTO books_issued FROM borrowings WHERE status = 'active' OR status = 'overdue';
+  
+  -- Unique students currently holding a book
+  SELECT COUNT(DISTINCT student_id) INTO active_students FROM borrowings WHERE status IN ('active', 'overdue');
+  
+  -- Total overdue items
+  SELECT COUNT(*) INTO total_overdue FROM borrowings WHERE status = 'overdue';
+  
+  -- Pending queue
+  SELECT COUNT(*) INTO queue_length FROM requests WHERE status = 'pending';
+
+  RETURN json_build_object(
+    'total_inventory', COALESCE(total_inventory, 0),
+    'books_issued', COALESCE(books_issued, 0),
+    'active_students', COALESCE(active_students, 0),
+    'total_overdue', COALESCE(total_overdue, 0),
+    'queue_length', COALESCE(queue_length, 0)
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- 1. Create the Function
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  -- Check the 'role' passed in the signup metadata
+  IF new.raw_user_meta_data->>'role' = 'librarian' THEN
+    INSERT INTO public.librarians (id, email, full_name)
+    VALUES (
+      new.id, 
+      new.email, 
+      new.raw_user_meta_data->>'full_name'
+    );
+  ELSE
+    -- Default to student
+    INSERT INTO public.students (id, email, full_name)
+    VALUES (
+      new.id, 
+      new.email, 
+      new.raw_user_meta_data->>'full_name'
+    );
+  END IF;
+  
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 2. Bind the Trigger to auth.users
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
