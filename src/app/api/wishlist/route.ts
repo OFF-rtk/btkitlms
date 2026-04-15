@@ -15,7 +15,7 @@ async function getAuthUserId(): Promise<string | null> {
     }
 }
 
-/* ── GET /api/wishlist — fetch all wishlisted book IDs for the student ── */
+/* ── GET /api/wishlist — fetch wishlisted books for the student ── */
 export async function GET() {
     const userId = await getAuthUserId();
     if (!userId) {
@@ -24,8 +24,9 @@ export async function GET() {
 
     const { data, error } = await supabaseAdmin
         .from("wishlist")
-        .select("id, book_id")
-        .eq("student_id", userId);
+        .select("id, book_id, books(*)")
+        .eq("student_id", userId)
+        .order("created_at", { ascending: false });
 
     if (error) {
         return Response.json({ error: error.message }, { status: 500 });
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
     }
 }
 
-/* ── DELETE /api/wishlist?book_id=<uuid> — remove from wishlist ── */
+/* ── DELETE /api/wishlist?id=<row_id> OR ?book_id=<uuid> — remove from wishlist ── */
 export async function DELETE(request: Request) {
     const userId = await getAuthUserId();
     if (!userId) {
@@ -79,17 +80,25 @@ export async function DELETE(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
+    const rowId = searchParams.get("id");
     const bookId = searchParams.get("book_id");
 
-    if (!bookId) {
-        return Response.json({ error: "book_id is required" }, { status: 400 });
+    if (!rowId && !bookId) {
+        return Response.json({ error: "id or book_id is required" }, { status: 400 });
     }
 
-    const { error } = await supabaseAdmin
+    let query = supabaseAdmin
         .from("wishlist")
         .delete()
-        .eq("student_id", userId)
-        .eq("book_id", bookId);
+        .eq("student_id", userId);
+
+    if (rowId) {
+        query = query.eq("id", rowId);
+    } else {
+        query = query.eq("book_id", bookId!);
+    }
+
+    const { error } = await query;
 
     if (error) {
         return Response.json({ error: error.message }, { status: 500 });
