@@ -4,17 +4,17 @@ import { useEffect, useState, useCallback } from "react";
 import {
     X,
     Trash2,
-    ScanLine,
     Loader2,
     Search,
     Minus,
     Plus,
     ShoppingCart,
     BookOpen,
-    Camera,
     Send,
     CheckCircle,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { useScanSession } from "@/hooks/useScanSession";
 import { useCart } from "../cart-context";
 import { useToast } from "../toast-context";
 import RequestBookSideSheet, {
@@ -58,6 +58,39 @@ export default function CartPage() {
     const [issueDays, setIssueDays] = useState(7);
     const [addingToCart, setAddingToCart] = useState(false);
     const [sheetError, setSheetError] = useState("");
+
+    const { sessionId, scannedIsbn } = useScanSession(sheetOpen);
+    const [origin, setOrigin] = useState("");
+
+    useEffect(() => { setOrigin(window.location.origin); }, []);
+
+    /* ── Auto-trigger search when phone scans a barcode ── */
+    useEffect(() => {
+        if (scannedIsbn) {
+            setManualIsbn(scannedIsbn);
+            setScanMode("manual");
+            // Trigger the search function
+            (async () => {
+                setSearching(true); setFoundBook(null); setGoogleBook(null); setSheetError("");
+                const isbn = scannedIsbn.trim();
+                try {
+                    const res = await fetch("/api/books");
+                    if (!res.ok) throw new Error("Failed to fetch books");
+                    const allBooks: Book[] = await res.json();
+                    const match = allBooks.find((b) => b.isbn.toLowerCase() === isbn.toLowerCase());
+                    if (match) { setFoundBook(match); setSearching(false); return; }
+                    const gRes = await fetch(`/api/google-books?isbn=${encodeURIComponent(isbn)}`);
+                    if (gRes.ok) {
+                        const gData = await gRes.json();
+                        if (gData.found && gData.book) { setGoogleBook(gData.book); setSearching(false); return; }
+                    }
+                    setSheetError("No book found with that ISBN.");
+                } catch { setSheetError("Search failed."); }
+                finally { setSearching(false); }
+            })();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scannedIsbn]);
 
     /* ── Google Books fallback state ── */
     const [googleBook, setGoogleBook] = useState<GoogleBookData | null>(null);
@@ -122,15 +155,7 @@ export default function CartPage() {
         finally { setSearching(false); }
     }
 
-    async function handleSimulateScan() {
-        setSearching(true); setFoundBook(null); setGoogleBook(null); setSheetError("");
-        try {
-            const res = await fetch("/api/books");
-            const allBooks: Book[] = await res.json();
-            if (allBooks.length > 0) setFoundBook(allBooks[Math.floor(Math.random() * allBooks.length)]);
-            else setSheetError("No books in the system to scan.");
-        } finally { setSearching(false); }
-    }
+    const scannerUrl = sessionId && origin ? `${origin}/scanner?session=${sessionId}` : null;
 
     async function handleAddToCart() {
         if (!foundBook) return;
@@ -170,7 +195,7 @@ export default function CartPage() {
 
     return (
         <div className="w-full bg-[#1a1a1a] min-h-screen px-6 py-8 md:px-12 md:py-12 pb-32 font-serif selection:bg-amber-900/40">
-            
+
             {/* Header */}
             <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-stone-800/60 pb-8">
                 <div>
@@ -188,12 +213,12 @@ export default function CartPage() {
                         )}
                     </div>
                 </div>
-                
+
                 <button
                     onClick={openSheet}
                     className="flex items-center justify-center gap-2.5 bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border border-amber-700/30 px-6 py-3.5 font-sans text-[10px] font-black uppercase tracking-[0.2em] text-amber-50 shadow-2xl transition-all hover:brightness-110 active:scale-[0.98]"
                 >
-                    <ScanLine className="h-4 w-4" />
+                    <BookOpen className="h-4 w-4" />
                     Scan / Add New Book
                 </button>
             </div>
@@ -211,7 +236,7 @@ export default function CartPage() {
                     <p className="mb-10 max-w-sm text-sm text-stone-500 font-sans leading-relaxed tracking-wide font-light">
                         Scan a book barcode or search by ISBN to add manuscripts to your borrowing ledger.
                     </p>
-                    
+
                     <button
                         onClick={openSheet}
                         className="bg-gradient-to-br from-amber-800 via-amber-900 to-[#2b180a] px-10 py-4 font-sans text-[10px] font-black uppercase tracking-[0.3em] text-amber-50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-amber-700/20 hover:brightness-110 transition-all"
@@ -287,7 +312,7 @@ export default function CartPage() {
                Scanner Side Sheet
                ═════════════════════════════════════════════ */}
             <div className={`fixed inset-0 z-[60] bg-black/85 backdrop-blur-xl transition-opacity duration-500 ${sheetOpen ? "opacity-100 visible" : "opacity-0 invisible"}`} onClick={closeSheet} />
-            
+
             <div className={`fixed z-[70] flex flex-col bg-[#0a0a0a] border-stone-900 shadow-2xl transition-transform duration-500 ease-in-out bottom-0 left-0 right-0 max-h-[92vh] rounded-t-[2.5rem] border-t md:top-0 md:bottom-auto md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l md:border-t-0 ${sheetOpen ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full"}`}>
 
                 <div className="flex items-center justify-between p-8 border-b border-stone-900">
@@ -299,7 +324,7 @@ export default function CartPage() {
                     {/* Toggle */}
                     <div className="mb-8 flex border border-stone-900 p-1 bg-stone-950 font-sans">
                         <button onClick={() => { setScanMode("scan"); setFoundBook(null); setGoogleBook(null); setSheetError(""); }} className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all ${scanMode === "scan" ? "bg-amber-900 text-amber-50 shadow-lg" : "text-stone-700"}`}>
-                            <Camera size={14} /> Scan Barcode
+                            <BookOpen size={14} /> Scan Barcode
                         </button>
                         <button onClick={() => { setScanMode("manual"); setFoundBook(null); setGoogleBook(null); setSheetError(""); }} className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all ${scanMode === "manual" ? "bg-amber-900 text-amber-50 shadow-lg" : "text-stone-700"}`}>
                             <Search size={14} /> Manual ISBN
@@ -307,12 +332,19 @@ export default function CartPage() {
                     </div>
 
                     {scanMode === "scan" ? (
-                        <div className="mb-8 relative aspect-video flex flex-col items-center justify-center border border-stone-900 bg-[#0d0d0d] overflow-hidden">
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_#0a0a0a_100%)] opacity-40" />
-                            <ScanLine size={32} className="text-stone-800 mb-4 animate-pulse" />
-                            <button onClick={handleSimulateScan} disabled={searching} className="relative px-6 py-2 border border-amber-900/30 text-[9px] font-sans font-black uppercase tracking-[0.2em] text-amber-700 hover:bg-amber-900 hover:text-amber-50 transition-all">
-                                {searching ? "Searching..." : "Simulate Scan"}
-                            </button>
+                        <div className="mb-8 flex flex-col items-center gap-4">
+                            <div className="p-5 bg-white rounded-sm shadow-[0_0_40px_rgba(255,255,255,0.03)]">
+                                {scannerUrl ? (
+                                    <QRCodeSVG value={scannerUrl} size={160} bgColor="#ffffff" fgColor="#0a0a0a" level="M" />
+                                ) : (
+                                    <div className="h-[160px] w-[160px] flex items-center justify-center">
+                                        <Loader2 size={20} className="animate-spin text-stone-400" />
+                                    </div>
+                                )}
+                            </div>
+                            <p className="text-center text-[9px] font-sans font-black uppercase tracking-[0.2em] text-stone-600">
+                                Scan QR with your phone to read barcode
+                            </p>
                         </div>
                     ) : (
                         <div className="mb-8 font-sans">
