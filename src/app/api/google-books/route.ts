@@ -10,8 +10,9 @@ export async function GET(request: NextRequest) {
     const cleanIsbn = isbn.replace(/[-\s]/g, "");
 
     try {
+        const apiKey = process.env.GOOGLE_API_KEY;
         const res = await fetch(
-            `https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}&maxResults=1`,
+            `https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}&maxResults=1${apiKey ? `&key=${apiKey}` : ""}`,
             { next: { revalidate: 3600 } }
         );
 
