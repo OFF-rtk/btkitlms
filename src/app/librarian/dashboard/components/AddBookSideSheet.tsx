@@ -4,9 +4,6 @@ import { useState, useEffect } from "react";
 import { X, Search, Loader2, BookPlus, AlertCircle } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useScanSession } from "@/hooks/useScanSession";
-import { X, Search, Loader2, BookPlus, AlertCircle } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
-import { useScanSession } from "@/hooks/useScanSession";
 
 interface AddBookSideSheetProps {
     isOpen: boolean;
