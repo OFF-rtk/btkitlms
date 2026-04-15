@@ -14,10 +14,10 @@ import {
     ShoppingCart,
     BookOpen,
     User,
-    Bell,
     Feather,
 } from "lucide-react";
 import { useCart } from "./cart-context";
+import NotificationPopover from "@/components/NotificationPopover";
 
 const navItems = [
     { label: "Home", href: "/student/dashboard", icon: Home },
@@ -120,9 +120,9 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
                         >
                             <LogOut size={12} /> Logout
                         </button>
-                        <button className="col-span-1 flex items-center justify-center border border-stone-800 bg-[#0a0a0a] text-stone-500 hover:text-amber-600">
-                            <Bell size={16} />
-                        </button>
+                        <div className="col-span-1 relative">
+                            <NotificationPopover role="student" />
+                        </div>
                     </div>
                 </div>
             </aside>

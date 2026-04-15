@@ -13,9 +13,9 @@ import {
     Menu,
     X,
     ShieldCheck,
-    Bell,
     Feather,
 } from "lucide-react";
+import NotificationPopover from "@/components/NotificationPopover";
 
 const navItems = [
     { label: "Dashboard", href: "/librarian/dashboard", icon: Home },
@@ -44,9 +44,9 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
                     <span className="font-serif text-xl tracking-[0.2em] text-[#e8e4db] uppercase">Libris</span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <button className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-500">
-                        <Bell className="h-5 w-5" />
-                    </button>
+                    <div className="relative h-10 w-10">
+                        <NotificationPopover role="librarian" />
+                    </div>
                 </div>
             </header>
 
@@ -122,9 +122,9 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
                         >
                             <LogOut size={12} /> Logout
                         </button>
-                        <button className="col-span-1 flex items-center justify-center border border-stone-800 bg-[#0a0a0a] text-stone-500 hover:text-amber-600">
-                            <Bell size={16} />
-                        </button>
+                        <div className="col-span-1 relative">
+                            <NotificationPopover role="librarian" />
+                        </div>
                     </div>
                 </div>
             </aside>

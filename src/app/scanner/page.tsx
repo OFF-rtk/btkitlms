@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ScanLine, CheckCircle, XCircle, Loader2, Smartphone } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Smartphone } from "lucide-react";
 
 export default function MobileScannerPage() {
     const [sessionId, setSessionId] = useState<string | null>(null);
@@ -17,6 +17,13 @@ export default function MobileScannerPage() {
         if (!s) { setStatus("no-session"); return; }
         setSessionId(s);
     }, []);
+
+    /* ── Auto-redirect to / after successful scan ── */
+    useEffect(() => {
+        if (status !== "success") return;
+        const t = setTimeout(() => { window.location.href = "/"; }, 1500);
+        return () => clearTimeout(t);
+    }, [status]);
 
     /* ── Initialize camera scanner ── */
     useEffect(() => {
@@ -115,21 +122,17 @@ export default function MobileScannerPage() {
                     </div>
                 )}
 
-                {/* Success */}
+                {/* Success — auto-redirect */}
                 {status === "success" && (
                     <div className="bg-[#0d0d0d] border border-emerald-900/30 p-10 text-center shadow-inner">
                         <CheckCircle size={48} className="text-emerald-600 mx-auto mb-4" />
                         <h2 className="text-xl italic text-[#e8e4db] tracking-tight mb-2">Barcode Sent!</h2>
-                        <p className="text-[10px] text-stone-500 font-sans tracking-wide">
-                            The ISBN has been sent to your PC. You can close this page.
+                        <p className="text-[10px] text-stone-500 font-sans tracking-wide mb-4">
+                            The ISBN has been sent to your PC.
                         </p>
-                        <button
-                            onClick={() => { setStatus("scanning"); }}
-                            className="mt-6 px-6 py-3 border border-amber-900/30 text-[9px] font-sans font-black uppercase tracking-[0.2em] text-amber-700 hover:bg-amber-900 hover:text-amber-50 transition-all"
-                        >
-                            <ScanLine size={12} className="inline mr-2" />
-                            Scan Another
-                        </button>
+                        <p className="text-[10px] text-stone-600 font-sans tracking-wide">
+                            Redirecting...
+                        </p>
                     </div>
                 )}
 
