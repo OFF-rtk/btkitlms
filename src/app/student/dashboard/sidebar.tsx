@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
     Home,
     Search,
@@ -14,6 +15,7 @@ import {
     BookOpen,
     User,
     Bell,
+    Feather,
 } from "lucide-react";
 import { useCart } from "./cart-context";
 
@@ -27,117 +29,101 @@ const navItems = [
 export function StudentSidebar({ studentName }: { studentName: string }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const { count } = useCart();
+    const pathname = usePathname();
 
     return (
         <>
             {/* ── Mobile top bar ── */}
-            <header className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-white/10 bg-slate-950/95 px-4 backdrop-blur lg:hidden">
+            <header className="fixed top-0 left-0 right-0 z-40 flex h-16 items-center justify-between border-b border-[#1a1a1a] bg-[#0a0a0a]/80 px-6 backdrop-blur-xl lg:hidden">
                 <button
                     onClick={() => setMobileOpen(true)}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-orange-50/70 hover:bg-white/10 hover:text-orange-50"
-                    aria-label="Open menu"
+                    className="flex h-10 w-10 items-center justify-center rounded-full text-stone-500 hover:text-amber-600 transition-colors"
                 >
-                    <Menu className="h-5 w-5" />
+                    <Menu className="h-6 w-6" />
                 </button>
-
                 <div className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-amber-400" />
-                    <span className="text-lg font-bold text-orange-50">
-                        LibraryMS
-                    </span>
+                    <BookOpen className="h-5 w-5 text-amber-700" />
+                    <span className="font-serif text-xl tracking-[0.2em] text-[#e8e4db] uppercase">Libris</span>
                 </div>
-
                 <div className="flex items-center gap-1">
-                    <button
-                        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-orange-50/70 hover:bg-white/10 hover:text-orange-50"
-                        aria-label="Notifications"
-                    >
-                        <Bell className="h-5 w-5" />
-                        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                            3
-                        </span>
-                    </button>
-                    <Link
-                        href="/student/dashboard/cart"
-                        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-orange-50/70 hover:bg-white/10 hover:text-orange-50"
-                    >
+                    <Link href="/student/dashboard/cart" className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-500">
                         <ShoppingCart className="h-5 w-5" />
                         {count > 0 && (
-                            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-slate-950">
-                                {count > 9 ? "9+" : count}
+                            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-700 text-[10px] font-bold text-white ring-2 ring-[#0a0a0a]">
+                                {count}
                             </span>
                         )}
                     </Link>
                 </div>
             </header>
 
-            {/* ── Mobile overlay ── */}
-            {mobileOpen && (
-                <div
-                    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
-                    onClick={() => setMobileOpen(false)}
-                />
-            )}
-
             {/* ── Sidebar ── */}
             <aside
                 className={`
-          fixed top-0 left-0 z-50 flex h-screen w-64 flex-col bg-slate-950 border-r border-white/10 p-5
-          transition-transform duration-300 ease-in-out
-          lg:translate-x-0
-          ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
+                    fixed top-0 left-0 z-50 flex h-screen w-80 lg:w-[24rem] flex-col bg-[#0a0a0a]
+                    transition-transform duration-500 ease-in-out lg:translate-x-0 lg:border-none
+                    ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+                `}
             >
-                {/* Close button (mobile only) */}
-                <button
-                    onClick={() => setMobileOpen(false)}
-                    className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-orange-50/50 hover:bg-white/10 hover:text-orange-50 lg:hidden"
-                    aria-label="Close menu"
-                >
-                    <X className="h-5 w-5" />
-                </button>
-
-                {/* Brand */}
-                <div className="mb-10 flex items-center gap-3 px-2">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-600 to-amber-800">
-                        <BookOpen className="h-5 w-5 text-orange-50" />
+                {/* Brand Section - Reduced h-40 to h-32 and mb-8 to mb-4 */}
+                <div className="relative mb-4 flex h-32 flex-col items-center justify-center border-b border-[#1a1a1a] bg-[#0d0d0d]">
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/aged-paper.png")' }}></div>
+                    <div className="mb-2 flex h-10 w-10 items-center justify-center border border-amber-900/30 bg-[#0a0a0a] text-amber-700">
+                        <BookOpen size={20} strokeWidth={1.5} />
                     </div>
-                    <span className="text-xl font-bold text-orange-50">
-                        LibraryMS
-                    </span>
+                    <span className="font-serif text-2xl tracking-[0.4em] text-[#e8e4db] uppercase">Libris</span>
+                    <p className="text-[9px] uppercase tracking-[0.3em] text-stone-600 font-sans font-bold mt-1">Registry Office</p>
                 </div>
 
-                {/* Navigation */}
-                <nav className="flex-1 space-y-1">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            onClick={() => setMobileOpen(false)}
-                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-orange-50/60 transition-colors hover:bg-white/5 hover:text-orange-50"
-                        >
-                            <item.icon className="h-[18px] w-[18px]" />
-                            {item.label}
-                        </Link>
-                    ))}
+                {/* Navigation - Space-y-0.5 and py-2 for tight look */}
+                <nav className="flex-1 space-y-0.5 px-6 py-2">
+                    <p className="px-4 mb-3 text-[9px] uppercase tracking-[0.3em] text-stone-700 font-black">University Registry</p>
+                    {navItems.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                className={`
+                                    group flex items-center gap-4 rounded-sm px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] transition-all
+                                    ${isActive 
+                                        ? "bg-amber-900/10 text-amber-600 border-l-2 border-amber-700 shadow-[inset_10px_0_15px_-10px_rgba(180,83,9,0.1)]" 
+                                        : "text-stone-500 hover:bg-stone-900 hover:text-[#e8e4db] border-l-2 border-transparent"}
+                                `}
+                            >
+                                <item.icon className={`h-4 w-4 ${isActive ? "text-amber-600" : "group-hover:text-amber-700"}`} />
+                                {item.label}
+                            </Link>
+                        );
+                    })}
                 </nav>
 
-                {/* Bottom: profile & logout */}
-                <div className="mt-auto border-t border-white/10 pt-4">
-                    <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-orange-50/60">
-                        <User className="h-[18px] w-[18px]" />
-                        <span className="truncate">{studentName}</span>
+                {/* Profile & Footer - Reduced Padding */}
+                <div className="mt-auto p-6 border-t border-[#1a1a1a] bg-[#0d0d0d]">
+                    <div className="mb-3 flex items-center gap-3 rounded-sm bg-[#0a0a0a] border border-[#1a1a1a] p-3 shadow-inner">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-900 border border-stone-800 text-amber-800">
+                            <Feather size={16} />
+                        </div>
+                        <div className="flex flex-col overflow-hidden">
+                            <span className="truncate font-serif text-xs text-[#e8e4db]">{studentName}</span>
+                            <span className="text-[8px] uppercase tracking-widest text-stone-600 mt-0.5">Student</span>
+                        </div>
                     </div>
-                    <button
-                        onClick={() => {
-                            document.cookie = "access_token=; path=/; max-age=0";
-                            window.location.href = "/auth/student/login";
-                        }}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
-                    >
-                        <LogOut className="h-[18px] w-[18px]" />
-                        Logout
-                    </button>
+
+                    <div className="grid grid-cols-6 gap-2">
+                        <button
+                            onClick={() => {
+                                document.cookie = "access_token=; path=/; max-age=0";
+                                window.location.href = "/auth/student/login";
+                            }}
+                            className="col-span-5 flex items-center justify-center gap-3 border border-stone-800 bg-[#0a0a0a] py-2.5 text-[9px] font-bold uppercase tracking-[0.3em] text-stone-500 hover:text-red-500 transition-all"
+                        >
+                            <LogOut size={12} /> Logout
+                        </button>
+                        <button className="col-span-1 flex items-center justify-center border border-stone-800 bg-[#0a0a0a] text-stone-500 hover:text-amber-600">
+                            <Bell size={16} />
+                        </button>
+                    </div>
                 </div>
             </aside>
         </>

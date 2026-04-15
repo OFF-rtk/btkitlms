@@ -7,6 +7,11 @@ import {
     Minus,
     Plus,
     Loader2,
+    Book as BookIcon,
+    MapPin,
+    Calendar,
+    Hash,
+    AlertCircle
 } from "lucide-react";
 import { useCart } from "../cart-context";
 
@@ -31,8 +36,7 @@ interface BookSideSheetProps {
     onClose: () => void;
 }
 
-const PLACEHOLDER =
-    "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop";
+const PLACEHOLDER = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400&auto=format&fit=crop";
 
 export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
     const { refreshCart } = useCart();
@@ -62,19 +66,18 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
             const data = await res.json();
 
             if (!res.ok) {
-                setCartError(data.error || "Failed to add to cart.");
+                setCartError(data.error || "Registry error: Failed to record loan.");
                 setAddingToCart(false);
                 return;
             }
 
-            // Success — refresh cart badge and close sheet
             refreshCart();
             setMonths(0);
             setDays(7);
             setCartError("");
             onClose();
         } catch {
-            setCartError("Something went wrong. Please try again.");
+            setCartError("Connection lost to the archives.");
         } finally {
             setAddingToCart(false);
         }
@@ -82,188 +85,138 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
 
     return (
         <>
-            {/* Backdrop */}
+            {/* Backdrop with Academic Atmosphere */}
             <div
-                className={`fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300 ${book
-                        ? "opacity-100 visible"
-                        : "opacity-0 invisible pointer-events-none"
-                    }`}
+                className={`fixed inset-0 z-40 bg-black/85 backdrop-blur-md transition-opacity duration-500 ${
+                    book ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+                }`}
                 onClick={onClose}
             />
 
-            {/* Panel */}
+            {/* Side Panel / Bottom Sheet */}
             <div
-                className={`fixed z-50 flex flex-col bg-slate-900 border-white/10 shadow-2xl transition-transform duration-300 ease-in-out
-                    /* Mobile: Bottom Sheet */
-                    bottom-0 left-0 right-0 max-h-[90vh] rounded-t-3xl border-t
-                    /* Desktop: Right Panel */
-                    md:top-0 md:bottom-auto md:right-0 md:left-auto md:h-screen md:w-[420px] md:max-h-none md:rounded-none md:border-l md:border-t-0
-                    ${book
-                        ? "translate-y-0 md:translate-x-0"
-                        : "translate-y-full md:translate-y-0 md:translate-x-full"
-                    }
+                className={`fixed z-50 flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out
+                    bottom-0 left-0 right-0 max-h-[94vh] rounded-t-[2.5rem] border-t
+                    md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l
+                    ${book ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full"}
                 `}
             >
                 {book && (
                     <>
-                        {/* Header */}
-                        <div className="flex items-center justify-between border-b border-white/10 p-6">
-                            <h2 className="font-serif text-xl font-bold text-orange-50">
-                                Details
-                            </h2>
+                        {/* Header: Registry Label Style */}
+                        <div className="flex items-center justify-between border-b border-stone-900 bg-[#0d0d0d] p-8">
+                            <div>
+                                <h2 className="font-serif text-[10px] uppercase tracking-[0.4em] text-amber-700 font-black mb-1">
+                                    Registry Record
+                                </h2>
+                                <p className="text-stone-500 text-[10px] font-mono tracking-widest uppercase opacity-60">
+                                    Accession No: {book.isbn}
+                                </p>
+                            </div>
                             <button
                                 onClick={onClose}
-                                className="rounded-full bg-white/5 p-2 text-orange-50/50 transition-colors hover:bg-white/10 hover:text-white"
+                                className="group flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 border border-stone-800 text-stone-600 transition-all hover:border-amber-900/50 hover:text-amber-600"
                             >
-                                <X className="h-5 w-5" />
+                                <X className="h-5 w-5 transition-transform group-hover:rotate-90" />
                             </button>
                         </div>
 
                         {/* Scrollable Content */}
-                        <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-                            <div className="mb-6 flex gap-5">
-                                <div className="h-40 w-28 shrink-0 overflow-hidden rounded-lg shadow-xl shadow-black/50">
+                        <div className="flex-1 overflow-y-auto p-8 md:p-10 scrollbar-hide space-y-10">
+                            {/* Visual Display */}
+                            <div className="flex flex-col items-center">
+                                <div className="relative mb-10 h-72 w-48 overflow-hidden rounded-[2px] shadow-[0_25px_60px_rgba(0,0,0,0.9)] border border-white/5 ring-1 ring-stone-900">
                                     <img
                                         src={book.cover_url || PLACEHOLDER}
                                         alt={book.title}
-                                        className="h-full w-full object-cover"
-                                        onError={(e) => {
-                                            (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
-                                        }}
+                                        className="h-full w-full object-cover grayscale-[20%] sepia-[15%] transition-all duration-700 hover:grayscale-0 hover:sepia-0"
                                     />
+                                    <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]" />
                                 </div>
-                                <div className="flex flex-col justify-center">
-                                    <h3 className="mb-1 font-serif text-2xl font-bold leading-tight text-orange-50">
-                                        {book.title}
-                                    </h3>
-                                    <p className="mb-3 text-sm text-amber-600 font-medium">
-                                        {book.author}
+                                <h3 className="mb-4 text-center font-serif text-3xl font-normal text-[#e8e4db] leading-tight italic underline decoration-stone-800 underline-offset-8">
+                                    {book.title}
+                                </h3>
+                                <p className="mb-8 font-serif text-amber-800 tracking-[0.2em] uppercase text-xs font-bold">
+                                    By {book.author}
+                                </p>
+                                
+                                <div className={`inline-flex items-center gap-3 rounded-full px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] border ${
+                                    book.available_copies > 0 
+                                    ? "border-emerald-900/30 bg-emerald-950/10 text-emerald-600" 
+                                    : "border-red-900/30 bg-red-950/10 text-red-600"
+                                }`}>
+                                    <div className={`h-1.5 w-1.5 rounded-full ${book.available_copies > 0 ? "bg-emerald-600 animate-pulse" : "bg-red-600"}`} />
+                                    {book.available_copies} of {book.total_copies} In Vault
+                                </div>
+                            </div>
+
+                            {/* Metadata Grid */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="rounded-sm bg-[#0d0d0d] p-5 border border-stone-900 shadow-inner">
+                                    <span className="flex items-center gap-2 text-[8px] uppercase tracking-[0.3em] text-stone-700 font-black mb-3">
+                                        <MapPin size={10} className="text-amber-900" /> Catalog Loc.
+                                    </span>
+                                    <p className="text-stone-300 text-sm font-serif">
+                                        {book.location_alley} <span className="text-stone-600 mx-1">•</span> {book.location_column}
                                     </p>
-                                    <span
-                                        className={`inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${book.available_copies > 0
-                                                ? "bg-emerald-500/10 text-emerald-400"
-                                                : "bg-red-500/10 text-red-400"
-                                            }`}
-                                    >
-                                        {book.available_copies} / {book.total_copies} Available
+                                </div>
+                                <div className="rounded-sm bg-[#0d0d0d] p-5 border border-stone-900 shadow-inner">
+                                    <span className="flex items-center gap-2 text-[8px] uppercase tracking-[0.3em] text-stone-700 font-black mb-3">
+                                        <Hash size={10} className="text-amber-900" /> Category
                                     </span>
+                                    <p className="text-stone-300 text-sm font-serif italic truncate">
+                                        {book.category || "General Studies"}
+                                    </p>
                                 </div>
                             </div>
 
-                            {/* Info Grid */}
-                            <div className="mb-8 space-y-2 rounded-xl bg-slate-950/50 p-4 border border-white/5">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-orange-50/50">ISBN</span>
-                                    <span className="font-medium text-orange-50">
-                                        {book.isbn}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-orange-50/50">Category</span>
-                                    <span className="font-medium text-orange-50">
-                                        {book.category || "General"}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between text-sm pt-2 border-t border-white/5 mt-2">
-                                    <span className="text-orange-50/50">Location Map</span>
-                                    <span className="font-medium text-orange-50">
-                                        {book.location_alley} • {book.location_column}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Duration Form — Months + Days */}
-                            <div className="mb-4">
-                                <label className="mb-3 block text-sm font-medium text-orange-50/70">
-                                    Requested Issue Duration
+                            {/* Loan Duration Selector */}
+                            <div className="bg-[#050505] p-8 rounded-3xl border border-stone-900/60 shadow-inner">
+                                <label className="mb-8 flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.4em] text-stone-600">
+                                    <Calendar size={14} className="text-amber-900" />
+                                    Borrowing Terms
                                 </label>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-8">
                                     {/* Months */}
-                                    <div>
-                                        <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-orange-50/40">
-                                            Months
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setMonths((m) => Math.max(0, m - 1))}
-                                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-orange-50 hover:bg-slate-700 active:scale-95 transition-all"
-                                            >
-                                                <Minus className="h-4 w-4" />
-                                            </button>
-                                            <input
-                                                type="number"
-                                                min={0}
-                                                max={12}
-                                                value={months}
-                                                onChange={(e) =>
-                                                    setMonths(Math.max(0, Math.min(12, Number(e.target.value))))
-                                                }
-                                                className="h-10 w-14 rounded-lg bg-slate-950 border border-amber-900/30 text-center text-lg font-bold text-orange-50 outline-none focus:border-amber-600"
-                                            />
-                                            <button
-                                                onClick={() => setMonths((m) => Math.min(12, m + 1))}
-                                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-orange-50 hover:bg-slate-700 active:scale-95 transition-all"
-                                            >
-                                                <Plus className="h-4 w-4" />
-                                            </button>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] text-stone-500 font-black uppercase tracking-widest font-sans">Months</span>
+                                        <div className="flex items-center gap-5 bg-[#0d0d0d] px-3 py-2 rounded-xl border border-stone-800">
+                                            <button onClick={() => setMonths((m) => Math.max(0, m - 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Minus size={16}/></button>
+                                            <span className="w-6 text-center text-base font-black text-amber-700 font-sans">{months}</span>
+                                            <button onClick={() => setMonths((m) => Math.min(12, m + 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Plus size={16}/></button>
                                         </div>
                                     </div>
-
                                     {/* Days */}
-                                    <div>
-                                        <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-orange-50/40">
-                                            Days
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                onClick={() => setDays((d) => Math.max(0, d - 1))}
-                                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-orange-50 hover:bg-slate-700 active:scale-95 transition-all"
-                                            >
-                                                <Minus className="h-4 w-4" />
-                                            </button>
-                                            <input
-                                                type="number"
-                                                min={0}
-                                                max={29}
-                                                value={days}
-                                                onChange={(e) =>
-                                                    setDays(Math.max(0, Math.min(29, Number(e.target.value))))
-                                                }
-                                                className="h-10 w-14 rounded-lg bg-slate-950 border border-amber-900/30 text-center text-lg font-bold text-orange-50 outline-none focus:border-amber-600"
-                                            />
-                                            <button
-                                                onClick={() => setDays((d) => Math.min(29, d + 1))}
-                                                className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-orange-50 hover:bg-slate-700 active:scale-95 transition-all"
-                                            >
-                                                <Plus className="h-4 w-4" />
-                                            </button>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] text-stone-500 font-black uppercase tracking-widest font-sans">Days</span>
+                                        <div className="flex items-center gap-5 bg-[#0d0d0d] px-3 py-2 rounded-xl border border-stone-800">
+                                            <button onClick={() => setDays((d) => Math.max(0, d - 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Minus size={16}/></button>
+                                            <span className="w-6 text-center text-base font-black text-amber-700 font-sans">{days}</span>
+                                            <button onClick={() => setDays((d) => Math.min(29, d + 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Plus size={16}/></button>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Total days summary */}
-                                <p className="mt-3 text-xs text-orange-50/40">
-                                    Total:{" "}
-                                    <span className="font-bold text-amber-500">{totalDays}</span>{" "}
-                                    day{totalDays !== 1 ? "s" : ""}
-                                </p>
+                                
+                                <div className="mt-10 pt-5 border-t border-stone-900/50 flex justify-between items-center text-[10px] text-stone-600 font-black uppercase tracking-[0.2em]">
+                                    <span>Total Period:</span>
+                                    <span className="text-amber-600 font-serif italic text-sm">{totalDays} Days</span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* CTA Footer */}
-                        <div className="border-t border-white/10 bg-slate-900 p-6">
+                        {/* CTA Footer: Inscribed Button */}
+                        <div className="border-t border-stone-900 bg-[#0d0d0d] p-8 md:p-10">
                             {cartError && (
-                                <p className="mb-3 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2 text-xs text-red-400">
+                                <div className="mb-6 flex items-center gap-3 rounded-2xl bg-red-950/10 border border-red-900/20 px-6 py-4 text-xs text-red-500 font-sans tracking-tight">
+                                    <AlertCircle size={14} className="shrink-0" />
                                     {cartError}
-                                </p>
+                                </div>
                             )}
                             <button
-                                disabled={
-                                    book.available_copies < 1 || totalDays < 1 || addingToCart
-                                }
+                                disabled={book.available_copies < 1 || totalDays < 1 || addingToCart}
                                 onClick={handleAddToCart}
-                                className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-700 px-6 py-4 font-bold text-white shadow-lg transition-all hover:bg-amber-600 disabled:bg-slate-800 disabled:text-slate-500 disabled:shadow-none active:scale-[0.98]"
+                                className="flex w-full items-center justify-center gap-4 bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border border-amber-700/20 px-10 py-6 font-black text-amber-50 uppercase tracking-[0.4em] text-[10px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-2xl transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
                             >
                                 {addingToCart ? (
                                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -271,15 +224,21 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
                                     <ShoppingCart className="h-5 w-5" />
                                 )}
                                 {addingToCart
-                                    ? "Adding…"
+                                    ? "Adding..."
                                     : book.available_copies < 1
-                                        ? "Currently Unavailable"
+                                        ? "Out of Circulation"
                                         : "Add to Cart"}
                             </button>
                         </div>
                     </>
                 )}
             </div>
+
+            {/* Custom Scrollbar CSS */}
+            <style jsx global>{`
+                .scrollbar-hide::-webkit-scrollbar { display: none; }
+                .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+            `}</style>
         </>
     );
 }
