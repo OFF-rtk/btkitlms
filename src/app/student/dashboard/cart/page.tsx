@@ -127,22 +127,22 @@ export default function CartPage() {
     const totalCartDays = cartItems.reduce((s, i) => s + i.requested_days, 0);
 
     if (loading) return (
-        <div className="flex h-[80vh] w-full items-center justify-center">
+        <div className="flex h-[80vh] w-full items-center justify-center bg-[#1a1a1a]">
             <Loader2 className="h-10 w-10 animate-spin text-amber-700" />
         </div>
     );
 
     return (
-        <div className="w-full bg-[#0a0a0a] min-h-screen px-6 py-8 md:px-12 md:py-12 pb-32 font-serif selection:bg-amber-900/40">
+        <div className="w-full bg-[#1a1a1a] min-h-screen px-6 py-8 md:px-12 md:py-12 pb-32 font-serif selection:bg-amber-900/40">
             
-            {/* ── Header ── */}
-            <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-stone-900/50 pb-8">
+            {/* Header */}
+            <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-stone-800/60 pb-8">
                 <div>
                     <h1 className="text-4xl font-normal text-[#e8e4db] md:text-5xl mb-1 leading-tight tracking-tight">
                         Your <span className="italic text-stone-500">Cart</span>
                     </h1>
                     <div className="flex items-center gap-3 font-sans text-[10px] uppercase tracking-[0.2em] text-stone-600 font-bold">
-                        <span>{cartItems.length} item{cartItems.length !== 1 ? "" : ""}</span>
+                        <span>{cartItems.length} item{cartItems.length !== 1 ? "s" : ""}</span>
                         {cartItems.length > 0 && (
                             <>
                                 <span className="w-1 h-1 bg-stone-800 rounded-full" />
@@ -152,7 +152,6 @@ export default function CartPage() {
                     </div>
                 </div>
                 
-                {/* Gradient Button: Scan / Add New Book */}
                 <button
                     onClick={openSheet}
                     className="flex items-center justify-center gap-2.5 bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border border-amber-700/30 px-6 py-3.5 font-sans text-[10px] font-black uppercase tracking-[0.2em] text-amber-50 shadow-2xl transition-all hover:brightness-110 active:scale-[0.98]"
@@ -165,8 +164,9 @@ export default function CartPage() {
             {/* ── Empty State ── */}
             {cartItems.length === 0 && (
                 <div className="mt-20 flex flex-col items-center justify-center text-center">
-                    <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-stone-900/50 bg-stone-950/40 shadow-inner">
-                        <ShoppingCart className="h-10 w-10 text-stone-800" />
+                    {/* Background updated slightly to make the black icon pop */}
+                    <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-stone-800 bg-[#141414] shadow-inner">
+                        <ShoppingCart className="h-10 w-10 text-black" />
                     </div>
                     <h2 className="mb-3 text-2xl font-normal text-[#e8e4db] italic tracking-tight">
                         Your cart is empty
@@ -175,7 +175,6 @@ export default function CartPage() {
                         Scan a book barcode or search by ISBN to add manuscripts to your borrowing ledger.
                     </p>
                     
-                    {/* Gradient Button: Scan a Book */}
                     <button
                         onClick={openSheet}
                         className="bg-gradient-to-br from-amber-800 via-amber-900 to-[#2b180a] px-10 py-4 font-sans text-[10px] font-black uppercase tracking-[0.3em] text-amber-50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-amber-700/20 hover:brightness-110 transition-all"
@@ -185,10 +184,10 @@ export default function CartPage() {
                 </div>
             )}
 
-            {/* ── List ── */}
+            {/* List */}
             <div className="space-y-4 max-w-6xl">
                 {cartItems.map((item) => (
-                    <div key={item.id} className="group relative flex gap-6 bg-[#0d0d0d] border border-stone-900 p-5 transition-all hover:border-amber-900/40 shadow-sm">
+                    <div key={item.id} className="group relative flex gap-6 bg-[#0d0d0d] border border-stone-800/60 p-5 transition-all hover:border-amber-900/40 shadow-sm">
                         <div className="h-28 w-20 shrink-0 overflow-hidden border border-stone-800 shadow-xl">
                             <img 
                                 src={item.books.cover_url || PLACEHOLDER} 
@@ -204,7 +203,7 @@ export default function CartPage() {
                                 {item.books.author}
                             </p>
                             <div className="mt-4 flex items-center gap-3 font-sans">
-                                <span className="inline-flex items-center gap-1.5 bg-stone-950 border border-stone-800/60 px-3 py-1 text-[9px] font-black text-stone-500 uppercase tracking-widest">
+                                <span className="inline-flex items-center gap-1.5 bg-black border border-stone-800 px-3 py-1 text-[9px] font-black text-stone-500 uppercase tracking-widest">
                                     <BookOpen className="h-3 w-3" />
                                     {item.requested_days} day{item.requested_days !== 1 ? "s" : ""}
                                 </span>
@@ -224,11 +223,12 @@ export default function CartPage() {
                 ))}
             </div>
 
-            {/* ── Sheet ── */}
+            {/* ── Updated Side Sheet Background ── */}
             <div className={`fixed inset-0 z-[60] bg-black/85 backdrop-blur-xl transition-opacity duration-500 ${sheetOpen ? "opacity-100 visible" : "opacity-0 invisible"}`} onClick={closeSheet} />
+            
             <div className={`fixed z-[70] flex flex-col bg-[#0a0a0a] border-stone-900 shadow-2xl transition-transform duration-500 ease-in-out bottom-0 left-0 right-0 max-h-[92vh] rounded-t-[2.5rem] border-t md:top-0 md:bottom-auto md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l md:border-t-0 ${sheetOpen ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full"}`}>
                 
-                <div className="flex items-center justify-between p-8 border-b border-stone-900/50">
+                <div className="flex items-center justify-between p-8 border-b border-stone-900">
                     <h2 className="text-xl font-normal text-[#e8e4db] italic tracking-tight underline decoration-stone-800 underline-offset-8">Add a Book</h2>
                     <button onClick={closeSheet} className="p-2.5 bg-stone-950 border border-stone-800 text-stone-600 hover:text-amber-600 transition-all"><X size={18} /></button>
                 </div>
@@ -245,7 +245,7 @@ export default function CartPage() {
                     </div>
 
                     {scanMode === "scan" ? (
-                        <div className="mb-8 relative aspect-video flex flex-col items-center justify-center border border-stone-900 bg-stone-950/40 overflow-hidden">
+                        <div className="mb-8 relative aspect-video flex flex-col items-center justify-center border border-stone-900 bg-[#0d0d0d] overflow-hidden">
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_#0a0a0a_100%)] opacity-40" />
                             <ScanLine size={32} className="text-stone-800 mb-4 animate-pulse" />
                             <button onClick={handleSimulateScan} disabled={searching} className="relative px-6 py-2 border border-amber-900/30 text-[9px] font-sans font-black uppercase tracking-[0.2em] text-amber-700 hover:bg-amber-900 hover:text-amber-50 transition-all">
