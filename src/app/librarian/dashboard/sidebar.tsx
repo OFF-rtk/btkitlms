@@ -5,30 +5,28 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     Home,
-    Search,
-    Heart,
-    Map,
+    BookOpen,
+    ArrowLeftRight,
+    Inbox,
+    Users,
     LogOut,
     Menu,
     X,
-    ShoppingCart,
-    BookOpen,
-    User,
+    ShieldCheck,
     Bell,
     Feather,
 } from "lucide-react";
-import { useCart } from "./cart-context";
 
 const navItems = [
-    { label: "Home", href: "/student/dashboard", icon: Home },
-    { label: "Search", href: "/student/dashboard/search", icon: Search },
-    { label: "Wishlist", href: "/student/dashboard/wishlist", icon: Heart },
-    { label: "Library Map", href: "/student/dashboard/map", icon: Map },
+    { label: "Dashboard", href: "/librarian/dashboard", icon: Home },
+    { label: "Catalog", href: "/librarian/dashboard/catalog", icon: BookOpen },
+    { label: "Circulation", href: "/librarian/dashboard/circulation", icon: ArrowLeftRight },
+    { label: "Procurement", href: "/librarian/dashboard/procurement", icon: Inbox },
+    { label: "Students", href: "/librarian/dashboard/students", icon: Users },
 ];
 
-export function StudentSidebar({ studentName }: { studentName: string }) {
+export function AdminSidebar({ adminName }: { adminName: string }) {
     const [mobileOpen, setMobileOpen] = useState(false);
-    const { count } = useCart();
     const pathname = usePathname();
 
     return (
@@ -42,20 +40,23 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
                     <Menu className="h-6 w-6" />
                 </button>
                 <div className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-amber-700" />
-                    <span className="font-serif text-xl tracking-[0.2em] text-[#e8e4db] uppercase">Libris</span>
+                    <ShieldCheck className="h-5 w-5 text-amber-700" />
+                    <span className="font-serif text-xl tracking-[0.2em] text-[#e8e4db] uppercase">Admin LMS</span>
                 </div>
                 <div className="flex items-center gap-1">
-                    <Link href="/student/dashboard/cart" className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-500">
-                        <ShoppingCart className="h-5 w-5" />
-                        {count > 0 && (
-                            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-700 text-[10px] font-bold text-white ring-2 ring-[#0a0a0a]">
-                                {count}
-                            </span>
-                        )}
-                    </Link>
+                    <button className="relative flex h-10 w-10 items-center justify-center rounded-full text-stone-500">
+                        <Bell className="h-5 w-5" />
+                    </button>
                 </div>
             </header>
+
+            {/* ── Mobile overlay ── */}
+            {mobileOpen && (
+                <div
+                    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+                    onClick={() => setMobileOpen(false)}
+                />
+            )}
 
             {/* ── Sidebar ── */}
             <aside
@@ -65,25 +66,26 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
                     ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
                 `}
             >
-                {/* Brand Section - Reduced h-40 to h-32 and mb-8 to mb-4 */}
+                {/* Brand Section */}
                 <div className="relative mb-4 flex h-32 flex-col items-center justify-center border-b border-[#1a1a1a] bg-[#0d0d0d]">
                     <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/aged-paper.png")' }}></div>
                     <div className="mb-2 flex h-10 w-10 items-center justify-center border border-amber-900/30 bg-[#0a0a0a] text-amber-700">
-                        <BookOpen size={20} strokeWidth={1.5} />
+                        <ShieldCheck size={20} strokeWidth={1.5} />
                     </div>
-                    <span className="font-serif text-2xl tracking-[0.4em] text-[#e8e4db] uppercase">Libris</span>
-                    <p className="text-[9px] uppercase tracking-[0.3em] text-stone-600 font-sans font-bold mt-1">Registry Office</p>
+                    <span className="font-serif text-2xl tracking-[0.4em] text-[#e8e4db] uppercase">Admin LMS</span>
+                    <p className="text-[9px] uppercase tracking-[0.3em] text-stone-600 font-sans font-bold mt-1">Command Center</p>
                 </div>
 
-                {/* Navigation - Space-y-0.5 and py-2 for tight look */}
+                {/* Navigation */}
                 <nav className="flex-1 space-y-0.5 px-6 py-2">
-                    <p className="px-4 mb-3 text-[9px] uppercase tracking-[0.3em] text-stone-700 font-black">University Registry</p>
+                    <p className="px-4 mb-3 text-[9px] uppercase tracking-[0.3em] text-stone-700 font-black">Administration</p>
                     {navItems.map((item) => {
                         const isActive = pathname === item.href;
                         return (
                             <Link
                                 key={item.label}
                                 href={item.href}
+                                onClick={() => setMobileOpen(false)}
                                 className={`
                                     group flex items-center gap-4 rounded-sm px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] transition-all
                                     ${isActive
@@ -98,15 +100,15 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
                     })}
                 </nav>
 
-                {/* Profile & Footer - Reduced Padding */}
+                {/* Profile & Footer */}
                 <div className="mt-auto p-6 border-t border-[#1a1a1a] bg-[#0d0d0d]">
                     <div className="mb-3 flex items-center gap-3 rounded-sm bg-[#0a0a0a] border border-[#1a1a1a] p-3 shadow-inner">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-900 border border-stone-800 text-amber-800">
                             <Feather size={16} />
                         </div>
                         <div className="flex flex-col overflow-hidden">
-                            <span className="truncate font-serif text-xs text-[#e8e4db]">{studentName}</span>
-                            <span className="text-[8px] uppercase tracking-widest text-stone-600 mt-0.5">Student</span>
+                            <span className="truncate font-serif text-xs text-[#e8e4db]">{adminName}</span>
+                            <span className="text-[8px] uppercase tracking-widest text-stone-600 mt-0.5">Librarian</span>
                         </div>
                     </div>
 
@@ -114,7 +116,7 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
                         <button
                             onClick={() => {
                                 document.cookie = "access_token=; path=/; max-age=0";
-                                window.location.href = "/auth/student/login";
+                                window.location.href = "/auth/librarian/login";
                             }}
                             className="col-span-5 flex items-center justify-center gap-3 border border-stone-800 bg-[#0a0a0a] py-2.5 text-[9px] font-bold uppercase tracking-[0.3em] text-stone-500 hover:text-red-500 transition-all"
                         >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     X,
     ShoppingCart,
@@ -46,6 +46,12 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
     const [cartError, setCartError] = useState("");
 
     const totalDays = months * 30 + days;
+
+    /* ── Lock background scroll when sheet is open ── */
+    useEffect(() => {
+        document.body.style.overflow = book ? "hidden" : "";
+        return () => { document.body.style.overflow = ""; };
+    }, [book]);
 
     /* ── Add to Cart via API route ── */
     async function handleAddToCart() {
@@ -189,32 +195,30 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
                                     <div className="flex items-center justify-between">
                                         <span className="text-[10px] text-stone-500 font-black uppercase tracking-widest font-sans">Months</span>
                                         <div className="flex items-center gap-5 bg-[#0d0d0d] px-3 py-2 rounded-xl border border-stone-800">
-                                            <button onClick={() => setMonths((m) => Math.max(0, m - 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Minus size={16}/></button>
+                                            <button onClick={() => setMonths((m) => Math.max(0, m - 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Minus size={16} /></button>
                                             <span className="w-6 text-center text-base font-black text-amber-700 font-sans">{months}</span>
-                                            <button onClick={() => setMonths((m) => Math.min(12, m + 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Plus size={16}/></button>
+                                            <button onClick={() => setMonths((m) => Math.min(12, m + 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Plus size={16} /></button>
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-[10px] text-stone-500 font-black uppercase tracking-widest font-sans">Days</span>
                                         <div className="flex items-center gap-5 bg-[#0d0d0d] px-3 py-2 rounded-xl border border-stone-800">
-                                            <button onClick={() => setDays((d) => Math.max(0, d - 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Minus size={16}/></button>
+                                            <button onClick={() => setDays((d) => Math.max(0, d - 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Minus size={16} /></button>
                                             <span className="w-6 text-center text-base font-black text-amber-700 font-sans">{days}</span>
-                                            <button onClick={() => setDays((d) => Math.min(29, d + 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Plus size={16}/></button>
+                                            <button onClick={() => setDays((d) => Math.min(29, d + 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Plus size={16} /></button>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div className="mt-10 pt-5 border-t border-stone-900/50 flex justify-between items-center text-[10px] text-stone-600 font-black uppercase tracking-[0.2em]">
                                     <span>Total Period:</span>
                                     <span className="text-amber-600 font-serif italic text-sm">{totalDays} Days</span>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* CTA Footer: Inscribed Button */}
-                        <div className="border-t border-stone-900 bg-[#0d0d0d] p-8 md:p-10">
+                            {/* CTA Button */}
                             {cartError && (
-                                <div className="mb-6 flex items-center gap-3 rounded-2xl bg-red-950/10 border border-red-900/20 px-6 py-4 text-xs text-red-500 font-sans tracking-tight">
+                                <div className="flex items-center gap-3 rounded-2xl bg-red-950/10 border border-red-900/20 px-6 py-4 text-xs text-red-500 font-sans tracking-tight">
                                     <AlertCircle size={14} className="shrink-0" />
                                     {cartError}
                                 </div>
@@ -222,7 +226,7 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
                             <button
                                 disabled={book.available_copies < 1 || totalDays < 1 || addingToCart}
                                 onClick={handleAddToCart}
-                                className="flex w-full items-center justify-center gap-4 bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border border-amber-700/20 px-10 py-6 font-black text-amber-50 uppercase tracking-[0.4em] text-[10px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-2xl transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
+                                className="flex w-full items-center justify-center gap-4 bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950 border border-amber-700/20 px-10 py-5 font-black text-amber-50 uppercase tracking-[0.4em] text-[10px] shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-2xl transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
                             >
                                 {addingToCart ? (
                                     <Loader2 className="h-5 w-5 animate-spin" />
