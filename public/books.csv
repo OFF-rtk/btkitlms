@@ -1,0 +1,21 @@
+isbn,title,author,cover_url,category,collections,total_copies,available_copies,location_alley,location_column,location_shelf
+9356063605,"Computer Networks, 6e",Andrew S. Tanenbaum,https://www.amazon.in/dp/9356063605,Computers,"{""Trending"",""Teacher's Pick""}",48,48,A1,C1 to C4,S1 to S4
+8177580310,"Software Testing, 2e",Patton,https://www.amazon.in/dp/8177580310,Computers,"{""New Arrival""}",54,54,A2,C1 to C5,S1 to S5
+8190844997,Operating Systems Design and Implementation 3e,Tanenbaum/Woodhull,https://www.amazon.in/dp/9332550514,Computers,"{""Teacher's Pick""}",60,60,A3,C1 to C6,S1 to S6
+9385915428,DIFFERENTIAL EQUATIONS AND INTEGRAL TRANSFORMS,Rakesh Kumar/Nagendra Kumar,https://www.amazon.in/dp/9385915428,Mathematics,"{""Trending"",""New Arrival""}",54,54,A4,C1 to C5,S1 to S5
+3030064794,The Discrete Math Workbook,Sergei Kurgalin,https://www.amazon.in/dp/3030064794,Mathematics,"{""Teacher's Pick""}",62,62,A5,C1 to C7,S1 to S7
+3662569558,Mathematical Analysis I,V. A. Zorich,https://www.amazon.in/dp/3662569558,Mathematics,"{""New Arrival"",""Teacher's Pick""}",56,56,A6,C1 to C6,S1 to S6
+9355513305,Data Structures with Python,Harsh Bhasin,https://www.amazon.in/dp/9355513305,Data Structures,"{""Trending"",""New Arrival""}",45,45,A7,C1 to C5,S1 to S5
+8193245288,Data Structures And Algorithms Made Easy,Narasimha Karumanchi,https://www.amazon.in/dp/8193245288,Data Structures,"{""Trending"",""Teacher's Pick""}",50,50,A8,C1 to C5,S1 to S5
+9354977197,DATA STRUCTURES 3E,Reema Thareja,https://www.amazon.in/dp/9354977197,Data Structures,"{""New Arrival""}",52,52,A9,C1 to C5,S1 to S5
+9352833996,"Textbook of Engineering Physics, 11e",M N Avadhanulu,https://www.amazon.in/dp/9352833996,Physics,"{""Teacher's Pick""}",60,60,A10,C1 to C6,S1 to S6
+9780199461851,"PRINCIPLES OF ELECTROMAGNETICS, 6TH EDN",Matthew N.O. Sadiku,https://www.amazon.in/dp/0199461856,Physics,"{""Trending""}",56,56,A11,C1 to C6,S1 to S6
+9788120348974,Introduction to Chemical Engineering Thermodynamics,Gopinath Halder,https://www.amazon.in/dp/8120348974,Chemistry,"{""New Arrival"",""Teacher's Pick""}",55,55,A12,C1 to C6,S1 to S6
+9789332585607,"Computer System Architecture, Revised 3/e",Mano M Morris,https://www.amazon.in/dp/9332585601,Computer Designing,"{""Trending"",""Teacher's Pick""}",60,60,A13,C1 to C7,S1 to S7
+9355424485,Beyond Cracking the Coding Interview,Gayle Laakmann McDowell,https://www.amazon.in/dp/9355424485,Coding,"{""Trending"",""New Arrival"",""Teacher's Pick""}",50,50,A14,C1 to C6,S1 to S6
+1260250202,Introduction to Programming With Java,John Dean,https://www.amazon.in/dp/1260250202,Programming,"{""New Arrival""}",55,55,A15,C1 to C6,S1 to S6
+9388176642,Let Us C++,Yashavant Kanetkar,https://www.amazon.in/dp/9388176642,Programming,"{""Trending"",""Teacher's Pick""}",45,45,A16,C1 to C5,S1 to S5
+9788131720479,"Introduction to Automata Theory, Languages, and Computation, 3e",John E. Hopcroft,https://www.amazon.in/dp/8131720470,Computer Formal Languages,"{""Teacher's Pick""}",50,50,A17,C1 to C6,S1 to S6
+8194192609,Fundamentals of Microprocessors & Microcontrollers,B. Ram,https://www.amazon.in/dp/8194192609,Electronics and Communication,"{""New Arrival"",""Trending""}",56,56,A18,C1 to C6,S1 to S6
+9355859082,Basic Electronics Engineering for GTU 24 Course (I/II- COMMON -),Atul P. Godse,https://www.amazon.in/dp/9355859082,Electronics and Communication,"{""New Arrival""}",52,52,A19,C1 to C5,S1 to S5
+9356062196,"Introduction to Robotics, 4e",John Craig,https://www.amazon.in/dp/9356062196,Mechanical Engineering,"{""Trending"",""New Arrival"",""Teacher's Pick""}",60,60,A20,C1 to C7,S1 to S7

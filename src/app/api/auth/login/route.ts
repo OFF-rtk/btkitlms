@@ -3,9 +3,7 @@ import { supabase, supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
-        const { email, password } = body;
-        console.log("[LOGIN] Step 1 — received:", { email });
+        const { email, password } = await request.json();
 
         if (!email || !password) {
             return Response.json(
@@ -20,13 +18,10 @@ export async function POST(request: Request) {
         });
 
         if (error) {
-            console.log("[LOGIN] Step 2 — auth FAILED:", error.message);
             return Response.json({ error: error.message }, { status: 401 });
         }
-        console.log("[LOGIN] Step 2 — auth OK, userId:", data.user?.id);
 
         const accessToken = data.session?.access_token;
-        console.log("[LOGIN] Step 3 — token exists:", !!accessToken);
         if (!accessToken) {
             return Response.json(
                 { error: "Login succeeded but no session returned" },
@@ -43,43 +38,34 @@ export async function POST(request: Request) {
             path: "/",
             maxAge: 60 * 60 * 24 * 7,
         });
-        console.log("[LOGIN] Step 4 — cookie set");
 
         /* Extract role from user metadata */
-        const userMeta = data.user?.user_metadata;
-        console.log("[LOGIN] Step 5 — raw user_metadata:", JSON.stringify(userMeta));
-        const role = userMeta?.role ?? "student";
-        console.log("[LOGIN] Step 5 — resolved role:", role);
+        const role = data.user?.user_metadata?.role ?? "student";
 
         /* Check onboarding completion */
         let onboardingComplete = false;
         if (role === "librarian") {
-            const { data: row, error: dbErr } = await supabaseAdmin
+            const { data: row } = await supabaseAdmin
                 .from("librarians")
                 .select("employee_id")
                 .eq("id", data.user!.id)
                 .single();
-            console.log("[LOGIN] Step 6 — librarians query:", { row, dbErr: dbErr?.message });
             onboardingComplete = !!row?.employee_id;
         } else {
-            const { data: row, error: dbErr } = await supabaseAdmin
+            const { data: row } = await supabaseAdmin
                 .from("students")
                 .select("roll_number")
                 .eq("id", data.user!.id)
                 .single();
-            console.log("[LOGIN] Step 6 — students query:", { row, dbErr: dbErr?.message });
             onboardingComplete = !!row?.roll_number;
         }
 
-        const responseBody = {
+        return Response.json({
             message: "Login successful",
             role,
             onboardingComplete,
-        };
-        console.log("[LOGIN] Step 7 — FINAL response:", JSON.stringify(responseBody));
-        return Response.json(responseBody);
-    } catch (err) {
-        console.error("[LOGIN] CAUGHT ERROR:", err);
+        });
+    } catch {
         return Response.json(
             { error: "Internal server error" },
             { status: 500 }

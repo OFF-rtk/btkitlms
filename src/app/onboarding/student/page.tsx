@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { BookOpen, GraduationCap, ArrowRight } from "lucide-react";
 
 const COURSES = ["B.Tech", "M.Tech", "B.Sc", "M.Sc", "BCA", "MCA", "MBA", "Ph.D"];
@@ -18,8 +17,6 @@ const BRANCHES = [
 const YEARS = [1, 2, 3, 4, 5];
 
 export default function StudentOnboardingPage() {
-    const router = useRouter();
-
     const [rollNumber, setRollNumber] = useState("");
     const [course, setCourse] = useState("");
     const [branch, setBranch] = useState("");
@@ -52,7 +49,7 @@ export default function StudentOnboardingPage() {
                 return;
             }
 
-            router.push("/student/dashboard");
+            window.location.href = "/student/dashboard";
         } catch {
             setError("Something went wrong. Please try again.");
         } finally {

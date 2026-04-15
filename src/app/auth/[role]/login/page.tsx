@@ -28,9 +28,7 @@ export default function LoginPage() {
                 body: JSON.stringify({ email, password }),
             });
 
-            console.log("[LOGIN-UI] Step A — fetch status:", res.status);
             const data = await res.json();
-            console.log("[LOGIN-UI] Step B — response body:", JSON.stringify(data));
 
             if (!res.ok) {
                 setError(data.error || "Login failed");
@@ -42,11 +40,8 @@ export default function LoginPage() {
             const target = !data.onboardingComplete
                 ? `/onboarding/${data.role}`
                 : `/${data.role}/dashboard`;
-            console.log("[LOGIN-UI] Step C — navigating to:", target);
             window.location.href = target;
-            /* Don't setLoading(false) — page is navigating away */
-        } catch (err) {
-            console.error("[LOGIN-UI] CAUGHT ERROR:", err);
+        } catch {
             setError("Something went wrong. Please try again.");
             setLoading(false);
         }
