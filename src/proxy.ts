@@ -18,18 +18,17 @@ export async function proxy(request: NextRequest) {
 
     /* ── Protected zones ── */
     const isApi = pathname.startsWith("/api/onboarding");
-    const isDashboard = pathname.startsWith("/student/dashboard") || pathname.startsWith("/librarian/dashboard");
+    const isDashboard =
+        pathname.startsWith("/student/dashboard") ||
+        pathname.startsWith("/librarian/dashboard");
     const isOnboarding = pathname.startsWith("/onboarding");
 
     if (!isApi && !isDashboard && !isOnboarding) {
         return NextResponse.next();
     }
 
-    console.log("[PROXY] pathname:", pathname, "| hasToken:", !!token);
-
     /* ── Missing token ── */
     if (!token) {
-        console.log("[PROXY] NO TOKEN — redirecting to login");
         if (isApi) {
             return Response.json(
                 { error: "Unauthorized" },
@@ -43,10 +42,8 @@ export async function proxy(request: NextRequest) {
     /* ── Verify JWT ── */
     try {
         await jwtVerify(token, JWKS);
-        console.log("[PROXY] JWT VALID — allowing", pathname);
         return NextResponse.next();
-    } catch (err) {
-        console.log("[PROXY] JWT INVALID for", pathname, "| error:", err);
+    } catch {
         if (isApi) {
             return Response.json(
                 { error: "Invalid or expired token" },

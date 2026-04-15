@@ -31,9 +31,7 @@ async function handleSubmit(e: React.FormEvent) {
             body: JSON.stringify({ email, password }),
         });
 
-        console.log("[LOGIN-UI] Step A — fetch status:", res.status);
-        const data = await res.json();
-        console.log("[LOGIN-UI] Step B — response body:", JSON.stringify(data));
+            const data = await res.json();
 
         if (!res.ok) {
             setError(data.error || "Login failed");
@@ -41,20 +39,16 @@ async function handleSubmit(e: React.FormEvent) {
             return;
         }
 
-        /* data.role is always "student" or "librarian" (from DB) */
-        const target = !data.onboardingComplete
-            ? `/onboarding/${data.role}`
-            : `/${data.role}/dashboard`;
-        console.log("[LOGIN-UI] Step C — navigating to:", target);
-        window.location.href = target;
-        /* Don't setLoading(false) — page is navigating away */
-    } catch (err) {
-        console.error("[LOGIN-UI] CAUGHT ERROR:", err);
-        setError("Something went wrong. Please try again.");
-        setLoading(false);
+            /* data.role is always "student" or "librarian" (from DB) */
+            const target = !data.onboardingComplete
+                ? `/onboarding/${data.role}`
+                : `/${data.role}/dashboard`;
+            window.location.href = target;
+        } catch {
+            setError("Something went wrong. Please try again.");
+            setLoading(false);
+        }
     }
-}
-// ------------------------------------------------------------------
 
 return (
     <div className="min-h-screen flex w-full bg-[#1a1a1a] text-[#e0d6c8] selection:bg-[#5c4033] selection:text-[#f4f1ea] font-serif">

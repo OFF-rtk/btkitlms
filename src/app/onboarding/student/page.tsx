@@ -73,8 +73,6 @@ function CustomDropdown({ id, value, onChange, options, placeholder, icon: Icon,
 // ------------------------------------------------------------------
 
 export default function StudentOnboardingPage() {
-    const router = useRouter();
-
     const [rollNumber, setRollNumber] = useState("");
     const [course, setCourse] = useState("");
     const [branch, setBranch] = useState("");
@@ -130,7 +128,7 @@ export default function StudentOnboardingPage() {
                 return;
             }
 
-            router.push("/student/dashboard");
+            window.location.href = "/student/dashboard";
         } catch {
             setError("Something went wrong. Please try again.");
         } finally {
