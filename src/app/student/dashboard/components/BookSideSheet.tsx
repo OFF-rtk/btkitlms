@@ -91,16 +91,17 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
 
     return (
         <>
-            {/* Backdrop with Academic Atmosphere */}
+            {/* ── UPDATED BACKDROP: Covers whole screen including sidebar ── */}
             <div
-                className={`fixed inset-0 z-40 bg-black/85 backdrop-blur-md transition-opacity duration-500 ${book ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
-                    }`}
+                className={`fixed inset-0 z-[60] bg-black/60 backdrop-blur-md transition-opacity duration-500 ${
+                    book ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+                }`}
                 onClick={onClose}
             />
 
-            {/* Side Panel / Bottom Sheet */}
+            {/* ── PANEL: Higher Z-index to stay above backdrop ── */}
             <div
-                className={`fixed z-50 flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out
+                className={`fixed z-[70] flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out
                     bottom-0 left-0 right-0 max-h-[94vh] rounded-t-[2.5rem] border-t
                     md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l
                     ${book ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full"}
@@ -141,16 +142,25 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
                                 <h3 className="mb-4 text-center font-serif text-3xl font-normal text-[#e8e4db] leading-tight italic underline decoration-stone-800 underline-offset-8">
                                     {book.title}
                                 </h3>
-                                <p className="mb-8 font-serif text-amber-800 tracking-[0.2em] uppercase text-xs font-bold">
+                                <p className="mb-8 font-serif text-amber-800 tracking-[0.2em] uppercase text-xs font-bold text-center">
                                     By {book.author}
                                 </p>
-
-                                <div className={`inline-flex items-center gap-3 rounded-full px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] border ${book.available_copies > 0
-                                    ? "border-emerald-900/30 bg-emerald-950/10 text-emerald-600"
-                                    : "border-red-900/30 bg-red-950/10 text-red-600"
-                                    }`}>
-                                    <div className={`h-1.5 w-1.5 rounded-full ${book.available_copies > 0 ? "bg-emerald-600 animate-pulse" : "bg-red-600"}`} />
-                                    {book.available_copies} of {book.total_copies} In Vault
+                                
+                                {/* ── PROMINENT AVAILABILITY BOX ── */}
+                                <div className={`w-full max-w-[340px] rounded-sm p-6 border-2 transition-all flex flex-col items-center justify-center gap-2 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] ${
+                                    book.available_copies > 0 
+                                    ? "border-emerald-900/50 bg-emerald-950/20 shadow-emerald-900/20" 
+                                    : "border-red-900/50 bg-red-950/20 shadow-red-900/20"
+                                }`}>
+                                    <div className="flex items-center gap-3">
+                                        <div className={`h-2.5 w-2.5 rounded-full ${book.available_copies > 0 ? "bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" : "bg-red-500"}`} />
+                                        <span className={`text-2xl md:text-3xl font-serif italic font-bold tracking-tight ${book.available_copies > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                                            {book.available_copies} of {book.total_copies}
+                                        </span>
+                                    </div>
+                                    <span className={`text-[11px] font-black uppercase tracking-[0.4em] ${book.available_copies > 0 ? "text-emerald-700" : "text-red-700"}`}>
+                                        Available 
+                                    </span>
                                 </div>
                             </div>
 
@@ -158,7 +168,7 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="rounded-sm bg-[#0d0d0d] p-5 border border-stone-900 shadow-inner">
                                     <span className="flex items-center gap-2 text-[8px] uppercase tracking-[0.3em] text-stone-700 font-black mb-3">
-                                        <MapPin size={10} className="text-amber-900" /> Catalog Loc.
+                                        <MapPin size={10} className="text-amber-900" /> Location
                                     </span>
                                     <p className="text-stone-300 text-sm font-serif">
                                         {book.location_alley} <span className="text-stone-600 mx-1">•</span> {book.location_column}
@@ -182,7 +192,6 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
                                 </label>
 
                                 <div className="space-y-8">
-                                    {/* Months */}
                                     <div className="flex items-center justify-between">
                                         <span className="text-[10px] text-stone-500 font-black uppercase tracking-widest font-sans">Months</span>
                                         <div className="flex items-center gap-5 bg-[#0d0d0d] px-3 py-2 rounded-xl border border-stone-800">
@@ -191,7 +200,6 @@ export default function BookSideSheet({ book, onClose }: BookSideSheetProps) {
                                             <button onClick={() => setMonths((m) => Math.min(12, m + 1))} className="text-stone-600 hover:text-amber-600 transition-colors"><Plus size={16} /></button>
                                         </div>
                                     </div>
-                                    {/* Days */}
                                     <div className="flex items-center justify-between">
                                         <span className="text-[10px] text-stone-500 font-black uppercase tracking-widest font-sans">Days</span>
                                         <div className="flex items-center gap-5 bg-[#0d0d0d] px-3 py-2 rounded-xl border border-stone-800">

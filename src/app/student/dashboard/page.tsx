@@ -130,7 +130,7 @@ export default function StudentDashboardPage() {
                 <div className="mb-10 md:mb-16 max-w-3xl">
                     <div className="mb-3 flex items-center gap-2 text-amber-600 uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold">
                         <BookIcon size={12} className="md:w-3.5 md:h-3.5" />
-                        The University Archives
+                        The University Library
                     </div>
                     <h1 className="text-3xl font-normal text-[#e8e4db] md:text-6xl mb-3 leading-tight">
                         Library <span className="italic font-serif text-stone-500">Catalogue</span>

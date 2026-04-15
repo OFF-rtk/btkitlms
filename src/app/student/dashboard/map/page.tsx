@@ -7,39 +7,17 @@ import {
     MapPin,
     BookOpen,
     X,
+    MoveUp,
+    Compass
 } from "lucide-react";
 
-/* ── Types ── */
 interface Book {
     id: string;
     isbn: string;
     title: string;
     author: string;
-    cover_url: string | null;
-    category: string | null;
     location_alley: string | null;
-    location_column: string | null;
-    location_shelf: string | null;
 }
-
-/* ── Location parser: "C3" → [3], "C1 to C3" → [1,2,3] ── */
-function parseLocationRange(value: string | null): number[] {
-    if (!value) return [];
-    const cleaned = value.replace(/\s+/g, " ").trim();
-    const rangeMatch = cleaned.match(/[A-Za-z]?(\d+)\s*(?:to|-)\s*[A-Za-z]?(\d+)/i);
-    if (rangeMatch) {
-        const s = parseInt(rangeMatch[1], 10);
-        const e = parseInt(rangeMatch[2], 10);
-        const nums: number[] = [];
-        for (let i = Math.min(s, e); i <= Math.max(s, e); i++) nums.push(i);
-        return nums;
-    }
-    const single = cleaned.match(/[A-Za-z]?(\d+)/);
-    return single ? [parseInt(single[1], 10)] : [];
-}
-
-const COLS = 6;
-const ROWS = 6;
 
 export default function LibraryMapPage() {
     const [books, setBooks] = useState<Book[]>([]);
@@ -64,13 +42,9 @@ export default function LibraryMapPage() {
         return books.filter(b =>
             b.title.toLowerCase().includes(q) ||
             b.author.toLowerCase().includes(q) ||
-            b.isbn.toLowerCase().includes(q) ||
-            (b.category && b.category.toLowerCase().includes(q))
-        ).slice(0, 8);
+            b.isbn.toLowerCase().includes(q)
+        ).slice(0, 6);
     }, [q, books]);
-
-    const activeCols = useMemo(() => parseLocationRange(selectedBook?.location_column ?? null), [selectedBook]);
-    const activeRows = useMemo(() => parseLocationRange(selectedBook?.location_shelf ?? null), [selectedBook]);
 
     function select(book: Book) {
         setSelectedBook(book);
@@ -78,170 +52,147 @@ export default function LibraryMapPage() {
         setDropdownOpen(false);
     }
 
+    // Helper to check if an alley number matches the selected book's location
+    const isAlleySelected = (num: number) => {
+        if (!selectedBook?.location_alley) return false;
+        const loc = selectedBook.location_alley.toUpperCase();
+        return loc === `ALLEY ${num}` || loc === `A${num}`;
+    };
+
     return (
-        <div className="w-full overflow-x-hidden px-4 py-8 md:px-8 pb-32">
+        <div className="min-h-screen w-full bg-[#1a1a1a] text-[#e8e4db] px-6 py-10 md:px-16 font-serif">
             {/* Header */}
-            <div className="mb-8 max-w-3xl">
-                <h1 className="font-serif text-4xl font-bold text-orange-50 md:text-5xl mb-3">Library Map</h1>
-                <p className="text-orange-50/60 text-lg">Search for a book to locate it on the shelf map.</p>
+            <div className="mb-12 max-w-4xl">
+                <div className="flex items-center gap-3 text-amber-700 uppercase tracking-[0.4em] text-[10px] font-black mb-3">
+                    <Compass size={14} className="animate-pulse" />
+                    Navigation Registry
+                </div>
+                <h1 className="text-4xl md:text-6xl font-normal leading-tight tracking-tight mb-4">
+                    Library <span className="italic font-serif text-stone-500">Map</span>
+                </h1>
+                <p className="text-[#8c8273] text-sm md:text-lg max-w-xl font-sans font-light leading-relaxed border-l border-stone-800/50 pl-6">
+                    Orient yourself from the central Admin Desk. Search for a book to illuminate its corresponding corridor.
+                </p>
             </div>
 
-            {/* Search */}
-            <div className="relative mb-10 max-w-2xl">
-                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-orange-50/30" />
+            {/* Search Input */}
+            <div className="relative mb-16 max-w-2xl group">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-600 group-focus-within:text-amber-600 transition-colors" />
                 <input
                     type="text"
-                    placeholder="Search by title, author, or ISBN…"
+                    placeholder="Search by Title or ISBN to locate..."
                     value={query}
                     onChange={e => { setQuery(e.target.value); setDropdownOpen(true); }}
                     onFocus={() => setDropdownOpen(true)}
-                    className="w-full rounded-2xl bg-white/[0.04] border border-white/10 py-4 pl-12 pr-4 text-lg text-orange-50 outline-none placeholder:text-orange-50/25 focus:border-amber-600 focus:bg-white/[0.06] transition-all"
+                    className="w-full bg-stone-900/40 border border-stone-800 py-5 pl-14 pr-6 rounded-sm text-lg outline-none focus:border-amber-900/50 transition-all font-sans"
                 />
+                
+                {/* Search Dropdown */}
                 {dropdownOpen && q && results.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-slate-900 shadow-2xl shadow-black/40">
+                    <div className="absolute left-0 right-0 top-full z-50 mt-2 bg-[#0d0d0d] border border-stone-800 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2">
                         {results.map(book => (
-                            <button key={book.id} onClick={() => select(book)} className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.04] border-b border-white/5 last:border-b-0">
-                                <BookOpen className="h-4 w-4 shrink-0 text-amber-600/60" />
+                            <button key={book.id} onClick={() => select(book)} className="flex w-full items-center gap-4 px-6 py-4 text-left hover:bg-amber-900/10 transition-colors border-b border-stone-900 last:border-0">
+                                <BookOpen className="h-4 w-4 text-amber-700" />
                                 <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-semibold text-orange-50">{book.title}</p>
-                                    <p className="truncate text-xs text-orange-50/40">{book.author}</p>
+                                    <p className="truncate text-sm font-bold">{book.title}</p>
+                                    <p className="truncate text-[10px] uppercase tracking-widest text-stone-500">{book.author}</p>
                                 </div>
-                                {book.location_column && (
-                                    <span className="shrink-0 rounded-full bg-amber-600/10 px-2 py-0.5 text-[10px] font-bold text-amber-500">
-                                        {book.location_alley} · {book.location_column} · {book.location_shelf}
-                                    </span>
-                                )}
+                                <span className="text-[10px] font-black text-amber-600 uppercase">{book.location_alley}</span>
                             </button>
                         ))}
                     </div>
                 )}
-                {dropdownOpen && q && results.length === 0 && !loading && (
-                    <div className="absolute left-0 right-0 top-full z-30 mt-2 rounded-2xl border border-white/10 bg-slate-900 px-5 py-6 text-center shadow-2xl">
-                        <p className="text-sm text-orange-50/40">No books found.</p>
-                    </div>
-                )}
             </div>
 
-            {loading && (
-                <div className="flex h-40 items-center justify-center">
-                    <Loader2 className="h-10 w-10 animate-spin text-amber-600" />
+            {/* ── THE ARCHITECTURAL MAP ── */}
+            <div className="relative w-full max-w-5xl mx-auto aspect-[4/3] bg-[#141414] border border-stone-900 rounded-sm shadow-inner p-10 overflow-hidden">
+                
+                {/* Compass/Grid Lines Backdrop */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#e8e4db 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+
+                {/* Legend */}
+                <div className="absolute top-6 left-6 flex flex-col gap-2 text-[9px] uppercase tracking-[0.2em] font-black text-stone-600">
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-amber-600/80 rounded-full" /> Admin Desk</div>
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-600 rounded-sm" /> Target Alley</div>
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-stone-800 rounded-sm border border-stone-700" /> Collection</div>
                 </div>
-            )}
 
-            {/* Empty state */}
-            {!loading && !selectedBook && (
-                <div className="mt-12 flex flex-col items-center justify-center text-center">
-                    <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/5 border border-white/10">
-                        <MapPin className="h-10 w-10 text-amber-600/40" />
-                    </div>
-                    <h2 className="mb-2 font-serif text-2xl font-bold text-orange-50">Find a book on the map</h2>
-                    <p className="max-w-sm text-sm text-orange-50/50">Search above to see exact alley, column, and shelf coordinates.</p>
+                {/* Entrance (Bottom Center) */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center">
+                    <div className="h-1 w-20 bg-stone-800 mb-2" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-stone-700">Main Entrance</span>
+                    <MoveUp className={`mt-2 text-stone-800 ${selectedBook ? 'animate-bounce text-amber-900' : ''}`} size={20} />
                 </div>
-            )}
 
-            {/* ═══ Selected Book: Coordinates + Minimap ═══ */}
-            {!loading && selectedBook && (
-                <div>
-                    {/* Coordinates Card */}
-                    <div className="mb-8 rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-                        <div className="flex items-start justify-between mb-6">
-                            <div className="min-w-0 flex-1">
-                                <h2 className="font-serif text-xl font-bold text-orange-50 mb-1 line-clamp-2">{selectedBook.title}</h2>
-                                <p className="text-sm text-amber-600">{selectedBook.author}</p>
-                            </div>
-                            <button onClick={() => setSelectedBook(null)} className="ml-4 shrink-0 rounded-full bg-white/5 p-2 text-orange-50/50 hover:bg-white/10 hover:text-white transition-colors">
-                                <X className="h-4 w-4" />
-                            </button>
-                        </div>
-
-                        {/* Big coordinate badges */}
-                        <div className="grid grid-cols-3 gap-3">
-                            <div className="flex flex-col items-center rounded-xl bg-slate-900 border border-white/5 p-4">
-                                <span className="text-[10px] font-medium uppercase tracking-widest text-orange-50/30 mb-1">Alley</span>
-                                <span className="text-2xl font-bold text-amber-500">{selectedBook.location_alley ?? "—"}</span>
-                            </div>
-                            <div className="flex flex-col items-center rounded-xl bg-slate-900 border border-white/5 p-4">
-                                <span className="text-[10px] font-medium uppercase tracking-widest text-orange-50/30 mb-1">Column</span>
-                                <span className="text-2xl font-bold text-amber-500">{selectedBook.location_column ?? "—"}</span>
-                            </div>
-                            <div className="flex flex-col items-center rounded-xl bg-slate-900 border border-white/5 p-4">
-                                <span className="text-[10px] font-medium uppercase tracking-widest text-orange-50/30 mb-1">Shelf</span>
-                                <span className="text-2xl font-bold text-amber-500">{selectedBook.location_shelf ?? "—"}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Minimap */}
-                    <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-4 md:p-6">
-                        <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-orange-50/40">
-                            Shelf Map — Alley {selectedBook.location_alley ?? "—"}
-                        </h3>
-
-                        {/* Column headers */}
-                        <div className="mb-2 grid gap-1.5 md:gap-2" style={{ gridTemplateColumns: `2rem repeat(${COLS}, 1fr)` }}>
-                            <div />
-                            {Array.from({ length: COLS }, (_, i) => {
-                                const n = i + 1;
-                                const active = activeCols.includes(n);
-                                return (
-                                    <div key={`h-${n}`} className={`text-center text-[11px] font-bold py-1 rounded-md transition-colors ${active ? "text-amber-400 bg-amber-500/10" : "text-orange-50/20"}`}>
-                                        C{n}
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Grid rows */}
-                        {Array.from({ length: ROWS }, (_, si) => {
-                            const shelfNum = si + 1;
-                            const shelfActive = activeRows.includes(shelfNum);
-                            return (
-                                <div key={`r-${shelfNum}`} className="mb-1.5 grid gap-1.5 md:gap-2 items-center" style={{ gridTemplateColumns: `2rem repeat(${COLS}, 1fr)` }}>
-                                    {/* Row label */}
-                                    <div className={`text-[11px] font-bold text-right pr-1 ${shelfActive ? "text-amber-400" : "text-orange-50/20"}`}>
-                                        S{shelfNum}
-                                    </div>
-                                    {Array.from({ length: COLS }, (_, ci) => {
-                                        const colNum = ci + 1;
-                                        const hit = activeCols.includes(colNum) && shelfActive;
-                                        return (
-                                            <div
-                                                key={`c-${colNum}-${shelfNum}`}
-                                                className={`flex items-center justify-center rounded-md border transition-all ${hit
-                                                        ? "bg-amber-500/20 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)]"
-                                                        : "bg-slate-950/60 border-white/5"
-                                                    }`}
-                                                style={{ aspectRatio: "2.2 / 1", minHeight: "32px" }}
-                                            >
-                                                {hit && (
-                                                    <span className="relative flex h-2.5 w-2.5">
-                                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-60" />
-                                                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500 shadow-lg shadow-amber-500/50" />
-                                                    </span>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {/* Legend */}
-                    <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-orange-50/40">
-                        <div className="flex items-center gap-2">
-                            <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded border border-amber-500 bg-amber-500/20 shadow-[0_0_6px_rgba(245,158,11,0.4)]">
-                                <span className="h-1 w-1 rounded-full bg-amber-500" />
-                            </span>
-                            <span>Book location</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="inline-flex h-3.5 w-3.5 rounded border border-white/5 bg-slate-950/60" />
-                            <span>Empty shelf</span>
-                        </div>
+                {/* ── The Centerpiece: Admin Desk ── */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                    <div className="w-24 h-14 bg-amber-900/20 border-2 border-amber-700/50 shadow-[0_0_30px_rgba(180,83,9,0.1)] flex items-center justify-center relative z-10">
+                        <span className="text-[10px] font-black uppercase tracking-tighter text-amber-700">Admin Desk</span>
                     </div>
                 </div>
+
+                {/* ── THE 13 ALLEYS LAYOUT ── */}
+                <div className="relative w-full h-full">
+                    {/* Left Wing (Alleys 1-6) */}
+                    <div className="absolute left-0 top-0 bottom-0 w-1/3 flex flex-col justify-around py-10">
+                        {[1, 2, 3, 4, 5, 6].map(num => (
+                            <AlleyBox key={num} num={num} selected={isAlleySelected(num)} />
+                        ))}
+                    </div>
+
+                    {/* Center Top Hall (Alley 13 - The Great Hall) */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 pt-4">
+                        <AlleyBox num={13} selected={isAlleySelected(13)} isHorizontal />
+                    </div>
+
+                    {/* Right Wing (Alleys 7-12) */}
+                    <div className="absolute right-0 top-0 bottom-0 w-1/3 flex flex-col justify-around py-10">
+                        {[7, 8, 9, 10, 11, 12].map(num => (
+                            <AlleyBox key={num} num={num} selected={isAlleySelected(num)} />
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Selected Book Overlay */}
+            {selectedBook && (
+                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#0d0d0d] border border-amber-900/40 p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] flex items-center gap-8 min-w-[500px] animate-in slide-in-from-bottom-5 z-[60]">
+                    <div className="flex-1">
+                        <h4 className="text-[10px] uppercase tracking-[0.4em] text-amber-700 font-black mb-1">Illuminated Route</h4>
+                        <p className="text-lg italic">{selectedBook.title}</p>
+                    </div>
+                    <div className="h-12 w-px bg-stone-800" />
+                    <div className="text-right">
+                        <h4 className="text-[10px] uppercase tracking-[0.4em] text-stone-600 font-black mb-1">Destination</h4>
+                        <p className="text-2xl font-bold text-emerald-500 uppercase">{selectedBook.location_alley}</p>
+                    </div>
+                    <button onClick={() => setSelectedBook(null)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                        <X size={20} />
+                    </button>
+                </div>
             )}
+        </div>
+    );
+}
+
+/* ── Alley Component ── */
+function AlleyBox({ num, selected, isHorizontal = false }: { num: number, selected: boolean, isHorizontal?: boolean }) {
+    return (
+        <div className={`
+            relative flex items-center justify-center transition-all duration-700 rounded-sm
+            ${isHorizontal ? 'w-48 h-12' : 'w-full h-10'}
+            ${selected 
+                ? 'bg-emerald-950/40 border-2 border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.4)] scale-110 z-20' 
+                : 'bg-stone-900/10 border border-stone-800/50 hover:border-stone-700'}
+        `}>
+            {selected && (
+                <div className="absolute -top-6 animate-bounce">
+                    <MapPin size={18} className="text-emerald-500 fill-emerald-500/20" />
+                </div>
+            )}
+            <span className={`text-[10px] font-black uppercase tracking-widest transition-colors ${selected ? 'text-emerald-400' : 'text-stone-700'}`}>
+                Alley {num}
+            </span>
         </div>
     );
 }

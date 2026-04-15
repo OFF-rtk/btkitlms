@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Trash2, Heart } from "lucide-react";
+import { Loader2, Trash2, Heart, BookOpen } from "lucide-react";
 import BookSideSheet, { type Book } from "../components/BookSideSheet";
 
 interface WishlistRow {
@@ -55,72 +55,78 @@ export default function WishlistPage() {
 
     if (loading) {
         return (
-            <div className="flex h-[80vh] w-full items-center justify-center">
-                <Loader2 className="h-10 w-10 animate-spin text-amber-600" />
+            <div className="flex h-screen w-full items-center justify-center bg-[#1a1a1a]">
+                <Loader2 className="h-10 w-10 animate-spin text-amber-700" />
             </div>
         );
     }
 
     return (
-        <div className="w-full overflow-x-hidden px-4 py-8 md:px-8 pb-32">
-            {/* Header */}
-            <div className="mb-10 max-w-3xl">
-                <h1 className="font-serif text-4xl font-bold text-orange-50 md:text-5xl mb-3">
-                    Your Wishlist
+        /* Background updated to #1a1a1a for dashboard consistency */
+        <div className="w-full min-h-screen bg-[#1a1a1a] overflow-x-hidden px-5 py-8 md:px-12 md:py-12 pb-32 font-serif selection:bg-amber-900/30">
+            
+            {/* Header matches Dashboard/Search Typography */}
+            <div className="mb-10 md:mb-16 max-w-4xl">
+                <div className="mb-4 flex items-center gap-3 text-amber-700 uppercase tracking-[0.4em] text-[10px] md:text-xs font-black">
+                    <BookOpen size={14} className="opacity-70" />
+                    Personal Collection
+                </div>
+                <h1 className="text-3xl font-normal text-[#e8e4db] md:text-6xl mb-3 leading-tight tracking-tight">
+                    <span className="italic font-serif text-stone-500">Wishlist</span>
                 </h1>
-                <p className="text-orange-50/60 text-lg">
-                    {rows.length} book{rows.length !== 1 ? "s" : ""} saved for later.
+                <p className="text-[#8c8273] text-sm md:text-lg max-w-xl font-sans font-light leading-relaxed">
+                    {rows.length} manuscript{rows.length !== 1 ? "s" : ""} currently preserved in your private archives.
                 </p>
             </div>
 
-            {/* Empty state */}
+            {/* Empty state - Themed */}
             {rows.length === 0 && (
-                <div className="mt-16 flex flex-col items-center justify-center text-center">
-                    <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/5 border border-white/10">
-                        <Heart className="h-10 w-10 text-red-500/40" />
+                <div className="mt-20 flex flex-col items-center justify-center text-center">
+                    <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-stone-800 bg-stone-950/40">
+                        <Heart className="h-10 w-10 text-stone-800" />
                     </div>
-                    <h2 className="mb-2 font-serif text-2xl font-bold text-orange-50">
-                        Nothing here yet
+                    <h2 className="mb-2 text-2xl font-normal text-[#e8e4db] italic">
+                        The archives are empty
                     </h2>
-                    <p className="max-w-sm text-sm text-orange-50/50">
-                        Tap the heart icon on any book to save it to your wishlist.
+                    <p className="max-w-sm text-sm text-stone-600 font-sans tracking-wide">
+                        Explore the vault and tap the heart to save manuscripts for later study.
                     </p>
                 </div>
             )}
 
-            {/* Wishlist Grid */}
+            {/* Wishlist Grid - Card styling matches Dashboard/Search */}
             {rows.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8">
                     {rows.map((row) => (
                         <div key={row.id} className="group relative">
-                            {/* Card (click → side sheet) */}
+                            {/* Card Wrapper */}
                             <button
                                 onClick={() => setSelectedBook(row.books)}
-                                className="flex w-full flex-col text-left transition-transform hover:-translate-y-1"
+                                className="flex w-full flex-col text-left transition-all outline-none"
                             >
-                                <div className="relative mb-3 aspect-[2/3] w-full overflow-hidden rounded-xl border border-white/10 bg-slate-800 shadow-lg transition-all group-hover:border-amber-500/50 group-hover:shadow-amber-900/40">
+                                <div className="relative mb-3 aspect-[2/3] w-full overflow-hidden rounded-sm bg-stone-900 shadow-xl border border-stone-800/80 transition-transform duration-200 group-active:scale-95 group-hover:border-amber-900/40">
                                     <img
                                         src={row.books.cover_url || PLACEHOLDER}
                                         alt={row.books.title}
-                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        className="h-full w-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
                                         onError={(e) => {
                                             (e.currentTarget as HTMLImageElement).src = PLACEHOLDER;
                                         }}
                                     />
                                 </div>
-                                <h3 className="line-clamp-2 text-sm font-bold leading-tight text-orange-50">
+                                <h3 className="line-clamp-1 text-xs md:text-sm font-bold tracking-wide text-[#e8e4db] transition-colors group-hover:text-amber-500">
                                     {row.books.title}
                                 </h3>
-                                <p className="mt-1 truncate text-xs text-orange-50/50">
+                                <p className="mt-0.5 truncate font-sans text-[10px] text-stone-500 uppercase tracking-widest">
                                     {row.books.author}
                                 </p>
                             </button>
 
-                            {/* Trash overlay */}
+                            {/* Trash/Remove Action - Minimalist scholarly style */}
                             <button
                                 onClick={() => handleRemove(row.id)}
                                 disabled={removing === row.id}
-                                className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm text-red-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-red-600 hover:text-white hover:scale-110 disabled:opacity-50"
+                                className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 backdrop-blur-md text-stone-400 opacity-0 transition-all group-hover:opacity-100 hover:text-red-500 border border-white/5 disabled:opacity-50"
                                 aria-label="Remove from wishlist"
                             >
                                 {removing === row.id ? (
@@ -134,7 +140,7 @@ export default function WishlistPage() {
                 </div>
             )}
 
-            {/* Book Side Sheet */}
+            {/* Book Detail Sheet */}
             <BookSideSheet
                 book={selectedBook}
                 onClose={() => setSelectedBook(null)}
