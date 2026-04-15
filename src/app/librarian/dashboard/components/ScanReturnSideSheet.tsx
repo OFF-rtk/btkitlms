@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ScanLine, Search, Loader2, RotateCcw, BookOpen, User, AlertCircle } from "lucide-react";
+import { X, Search, Loader2, RotateCcw, BookOpen, User, AlertCircle } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { useScanSession } from "@/hooks/useScanSession";
 
 interface Borrowing {
     id: string;
@@ -27,6 +29,11 @@ export default function ScanReturnSideSheet({ isOpen, onClose }: ScanReturnSideS
     const [returning, setReturning] = useState(false);
     const [error, setError] = useState("");
 
+    const { sessionId, scannedIsbn } = useScanSession(isOpen);
+    const [origin, setOrigin] = useState("");
+
+    useEffect(() => { setOrigin(window.location.origin); }, []);
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -36,23 +43,34 @@ export default function ScanReturnSideSheet({ isOpen, onClose }: ScanReturnSideS
         return () => { document.body.style.overflow = ""; };
     }, [isOpen]);
 
+    /* ── Auto-trigger search when phone scans a barcode ── */
+    useEffect(() => {
+        if (scannedIsbn) {
+            setIsbn(scannedIsbn);
+            handleSearchByIsbn(scannedIsbn);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scannedIsbn]);
+
     function reset() {
         setIsbn(""); setBorrowing(null); setError(""); setSearching(false); setReturning(false);
     }
 
     function handleClose() { reset(); onClose(); }
 
-    async function handleSearch() {
-        if (!isbn.trim()) return;
+    async function handleSearchByIsbn(searchIsbn: string) {
+        if (!searchIsbn.trim()) return;
         setSearching(true); setBorrowing(null); setError("");
         try {
-            const res = await fetch(`/api/admin/return-book?isbn=${encodeURIComponent(isbn.trim())}`);
+            const res = await fetch(`/api/admin/return-book?isbn=${encodeURIComponent(searchIsbn.trim())}`);
             const data = await res.json();
             if (!res.ok) { setError(data.error || "Not found"); return; }
             setBorrowing(data);
         } catch { setError("Search failed."); }
         finally { setSearching(false); }
     }
+
+    async function handleSearch() { handleSearchByIsbn(isbn); }
 
     async function handleReturn() {
         if (!borrowing) return;
@@ -70,6 +88,7 @@ export default function ScanReturnSideSheet({ isOpen, onClose }: ScanReturnSideS
     }
 
     const isOverdue = borrowing?.status === "overdue";
+    const scannerUrl = sessionId && origin ? `${origin}/scanner?session=${sessionId}` : null;
 
     return (
         <>
@@ -103,18 +122,23 @@ export default function ScanReturnSideSheet({ isOpen, onClose }: ScanReturnSideS
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-8 md:p-10 scrollbar-hide space-y-8">
 
-                    {/* Scanner Placeholder */}
-                    <div className="relative aspect-video flex flex-col items-center justify-center border-2 border-dashed border-stone-800 bg-stone-950/40 overflow-hidden rounded-xl">
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_#0a0a0a_100%)] opacity-40" />
-                        <ScanLine size={32} className="text-stone-800 mb-4 animate-pulse" />
-                        <button onClick={() => { setIsbn("SIM-" + Date.now()); handleSearch(); }} disabled={searching} className="relative px-6 py-2 border border-amber-900/30 text-[9px] font-sans font-black uppercase tracking-[0.2em] text-amber-700 hover:bg-amber-900 hover:text-amber-50 transition-all">
-                            {searching ? "Searching..." : "Simulate Scan"}
-                        </button>
+                    {/* QR Code Scanner */}
+                    <div className="flex flex-col items-center gap-4 p-6 bg-white rounded-sm shadow-[0_0_40px_rgba(255,255,255,0.03)]">
+                        {scannerUrl ? (
+                            <QRCodeSVG value={scannerUrl} size={180} bgColor="#ffffff" fgColor="#0a0a0a" level="M" />
+                        ) : (
+                            <div className="h-[180px] w-[180px] flex items-center justify-center">
+                                <Loader2 size={24} className="animate-spin text-stone-400" />
+                            </div>
+                        )}
                     </div>
+                    <p className="text-center text-[9px] font-sans font-black uppercase tracking-[0.2em] text-stone-600">
+                        Scan QR with mobile device to read barcode
+                    </p>
 
                     {/* Manual Input */}
                     <div className="font-sans">
-                        <label className="text-[10px] uppercase tracking-[0.2em] text-stone-700 font-black mb-2 block">Book ISBN</label>
+                        <label className="text-[10px] uppercase tracking-[0.2em] text-stone-700 font-black mb-2 block">Or enter ISBN manually</label>
                         <div className="flex gap-2">
                             <input
                                 type="text" value={isbn}

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ScanLine, Search, Loader2, BookPlus, AlertCircle } from "lucide-react";
+import { X, Search, Loader2, BookPlus, AlertCircle } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { useScanSession } from "@/hooks/useScanSession";
 
 interface AddBookSideSheetProps {
     isOpen: boolean;
@@ -34,6 +36,11 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
 
+    const { sessionId, scannedIsbn } = useScanSession(isOpen);
+    const [origin, setOrigin] = useState("");
+
+    useEffect(() => { setOrigin(window.location.origin); }, []);
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
@@ -43,22 +50,32 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
         return () => { document.body.style.overflow = ""; };
     }, [isOpen]);
 
+    /* ── Auto-trigger fetch when phone scans a barcode ── */
+    useEffect(() => {
+        if (scannedIsbn) {
+            setManualIsbn(scannedIsbn);
+            handleFetchByIsbn(scannedIsbn);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scannedIsbn]);
+
     function reset() { setStep("scan"); setManualIsbn(""); setForm(empty); setError(""); setAutoFilled(false); }
     function handleClose() { reset(); onClose(); }
 
-    async function handleFetch() {
-        const isbn = manualIsbn.trim();
-        if (!isbn) return;
+    /* ── Fetch from Google Books, fallback to empty form ── */
+    async function handleFetchByIsbn(isbn: string) {
+        if (!isbn.trim()) return;
         setFetching(true); setError("");
+        const cleanIsbn = isbn.trim();
 
         try {
-            const res = await fetch(`/api/google-books?isbn=${encodeURIComponent(isbn)}`);
+            const res = await fetch(`/api/google-books?isbn=${encodeURIComponent(cleanIsbn)}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.found && data.book) {
                     setForm({
                         ...empty,
-                        isbn: data.book.isbn || isbn,
+                        isbn: data.book.isbn || cleanIsbn,
                         title: data.book.title || "",
                         author: data.book.author || "",
                         cover_url: data.book.cover_url || "",
@@ -68,17 +85,19 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
                     return;
                 }
             }
-            setForm({ ...empty, isbn });
+            setForm({ ...empty, isbn: cleanIsbn });
             setAutoFilled(false);
             setStep("form");
         } catch {
-            setForm({ ...empty, isbn });
+            setForm({ ...empty, isbn: cleanIsbn });
             setAutoFilled(false);
             setStep("form");
         } finally {
             setFetching(false);
         }
     }
+
+    async function handleFetch() { handleFetchByIsbn(manualIsbn); }
 
     function update(key: keyof BookForm, value: string | number) {
         setForm((prev) => ({ ...prev, [key]: value }));
@@ -105,6 +124,7 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
 
     const fieldClass = "w-full bg-stone-950 border border-stone-900 px-4 py-3 text-sm text-stone-300 font-serif outline-none focus:border-amber-900/50 transition-colors";
     const labelClass = "text-[9px] uppercase tracking-[0.2em] text-stone-700 font-black font-sans mb-2 block";
+    const scannerUrl = sessionId && origin ? `${origin}/scanner?session=${sessionId}` : null;
 
     return (
         <>
@@ -143,17 +163,24 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
                 <div className="flex-1 overflow-y-auto p-8 md:p-10 scrollbar-hide space-y-8">
 
                     {step === "scan" && (
-                        <div className="space-y-8 animate-in fade-in duration-500">
-                            {/* Scanner Placeholder */}
-                            <div className="relative aspect-video flex flex-col items-center justify-center border-2 border-dashed border-stone-800 bg-stone-950/40 overflow-hidden rounded-xl">
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_transparent_0%,_#0a0a0a_100%)] opacity-40" />
-                                <ScanLine size={32} className="text-stone-800 mb-4 animate-pulse" />
-                                <p className="relative text-[9px] font-sans font-black uppercase tracking-[0.2em] text-stone-700">Camera placeholder</p>
+                        <div>
+                            {/* QR Code Scanner */}
+                            <div className="flex flex-col items-center gap-4 p-6 bg-white rounded-sm shadow-[0_0_40px_rgba(255,255,255,0.03)]">
+                                {scannerUrl ? (
+                                    <QRCodeSVG value={scannerUrl} size={180} bgColor="#ffffff" fgColor="#0a0a0a" level="M" />
+                                ) : (
+                                    <div className="h-[180px] w-[180px] flex items-center justify-center">
+                                        <Loader2 size={24} className="animate-spin text-stone-400" />
+                                    </div>
+                                )}
                             </div>
+                            <p className="text-center text-[9px] font-sans font-black uppercase tracking-[0.2em] text-stone-600">
+                                Scan QR with mobile device to read barcode
+                            </p>
 
                             {/* Manual ISBN */}
                             <div className="font-sans">
-                                <label className={labelClass}>Enter ISBN</label>
+                                <label className={labelClass}>Or enter ISBN manually</label>
                                 <div className="flex gap-2">
                                     <input
                                         type="text" value={manualIsbn}
