@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { X, Search, Loader2, BookPlus, AlertCircle } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useScanSession } from "@/hooks/useScanSession";
+import { X, Search, Loader2, BookPlus, AlertCircle } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { useScanSession } from "@/hooks/useScanSession";
 
 interface AddBookSideSheetProps {
     isOpen: boolean;
@@ -130,9 +133,8 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
         <>
             {/* ── Backdrop: Identical to BookSideSheet ── */}
             <div
-                className={`fixed inset-0 z-[60] bg-black/60 backdrop-blur-md transition-opacity duration-500 ${
-                    isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
-                }`}
+                className={`fixed inset-0 z-[60] bg-black/60 backdrop-blur-md transition-opacity duration-500 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+                    }`}
                 onClick={handleClose}
             />
 
@@ -174,6 +176,9 @@ export default function AddBookSideSheet({ isOpen, onClose }: AddBookSideSheetPr
                                     </div>
                                 )}
                             </div>
+                            <p className="text-center text-[9px] font-sans font-black uppercase tracking-[0.2em] text-stone-600">
+                                Scan QR with mobile device to read barcode
+                            </p>
                             <p className="text-center text-[9px] font-sans font-black uppercase tracking-[0.2em] text-stone-600">
                                 Scan QR with mobile device to read barcode
                             </p>
