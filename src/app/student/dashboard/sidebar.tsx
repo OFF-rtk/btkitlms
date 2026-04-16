@@ -57,6 +57,14 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
                 </div>
             </header>
 
+            {/* ── Mobile overlay ── */}
+            {mobileOpen && (
+                <div
+                    className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+                    onClick={() => setMobileOpen(false)}
+                />
+            )}
+
             {/* ── Sidebar ── */}
             <aside
                 className={`
@@ -84,6 +92,7 @@ export function StudentSidebar({ studentName }: { studentName: string }) {
                             <Link
                                 key={item.label}
                                 href={item.href}
+                                onClick={() => setMobileOpen(false)}
                                 className={`
                                     group flex items-center gap-4 rounded-sm px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.2em] transition-all
                                     ${isActive

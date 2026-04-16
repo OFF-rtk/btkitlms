@@ -69,8 +69,8 @@ export default function StudentDetailsSideSheet({ student, isOpen, onClose, onUp
 
     return (
         <>
-            <div className="fixed inset-0 z-40 bg-black/85 backdrop-blur-md transition-opacity duration-500 opacity-100" onClick={onClose} />
-            <div className="fixed z-50 flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out bottom-0 left-0 right-0 max-h-[94vh] rounded-t-[2.5rem] border-t md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l translate-y-0 md:translate-x-0">
+            <div className={`fixed inset-0 z-[60] bg-black/85 backdrop-blur-md transition-opacity duration-500 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`} onClick={onClose} />
+            <div className={`fixed z-[70] flex flex-col bg-[#0a0a0a] border-stone-800 shadow-[0_0_50px_rgba(0,0,0,1)] transition-all duration-500 ease-out bottom-0 left-0 right-0 max-h-[94vh] rounded-t-[2.5rem] border-t md:top-0 md:bottom-0 md:right-0 md:left-auto md:h-screen md:w-[480px] md:max-h-none md:rounded-none md:border-l ${isOpen ? "translate-y-0 md:translate-x-0" : "translate-y-full md:translate-x-full"}`}>
 
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-stone-900 bg-[#0d0d0d] p-8">

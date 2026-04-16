@@ -1,0 +1,87 @@
+LIBRIS — Slide Content (Live Demo Format)
+==========================================
+Each slide is shown for ~15-30 seconds before switching to the app.
+
+
+SLIDE 1 — TITLE
+────────────────
+  LIBRIS
+  A Two-Sided Library Management System
+
+  • Students browse, request, and track books
+  • Librarians manage inventory, circulation, and procurement
+  • Next.js · Supabase · Realtime
+
+  → DEMO: Open Student Home, scroll through collections
+
+
+SLIDE 2 — STUDENT EXPERIENCE
+─────────────────────────────
+  Discovery → Cart → Checkout
+
+  • Collection-based browsing (Trending, New Arrivals, Teacher's Picks)
+  • Book detail side sheet with live availability + shelf location
+  • Duration picker (months + days), add to cart, submit issue request
+  • Unknown ISBN? Falls back to Google Books API → procurement request
+
+  → DEMO: Click a book → side sheet → add to cart → go to cart → checkout
+
+
+SLIDE 3 — ADMIN COMMAND CENTER
+───────────────────────────────
+  Dashboard → Circulation → Approve/Return
+
+  • 5 live stats via database RPC (inventory, issued, overdue, students, pending)
+  • Circulation desk: pending requests table + active loans table
+  • Process Queue: approve or reject each request (atomic inventory update)
+  • Scan & Return: find borrowing by ISBN → confirm return
+
+  → DEMO: Switch to Admin → Dashboard → Circulation → open Process Queue → approve one
+
+
+SLIDE 4 — LIBRARY MAP
+──────────────────────
+  From Search to Shelf
+
+  • Each book stores physical location (Alley, Column, Shelf)
+  • 2D grid renders from database fields
+  • Highlights the exact shelf to walk to
+
+  → DEMO: Click "Find in Library" on a book → show the map highlight
+
+
+SLIDE 5 — MAGIC HANDOFF SCANNER
+─────────────────────────────────
+  Your Phone = Wireless Barcode Scanner
+
+  1. PC generates a session (UUID) and shows a QR code
+  2. Phone scans QR → opens camera page
+  3. Phone reads book barcode → writes ISBN to database
+  4. PC listens via Supabase Realtime → ISBN fills instantly
+  5. No app install. No Bluetooth. No extra hardware.
+
+  → DEMO: Open Scan & Return → scan QR with phone → scan a barcode → watch PC fill
+
+
+SLIDE 6 — STACK + CLOSE
+─────────────────────────
+  Built With
+
+  • Next.js 16 App Router (server + client components)
+  • Supabase Auth (JWT cookies, role-based guards)
+  • Supabase Postgres (Row Level Security on all tables)
+  • Supabase Realtime (powers Magic Handoff)
+  • Google Books API (ISBN metadata fallback)
+  • Notifications (role-filtered, bell popover, mark-read)
+
+  "A college could deploy this tomorrow."
+
+
+PRESENTER NOTES
+────────────────
+- Keep slides up for 15-30 sec max, then switch to live app
+- Demo flow: Student Home → Book → Cart → Checkout → Admin Dashboard → Circulation → Approve → Scanner
+- For the scanner demo, have your phone ready with camera permissions granted
+- If scanner demo fails (network/camera issue), just show the QR code and explain the flow verbally
+- Don't say: "seamlessly", "reimagined", "cutting-edge", "ecosystem"
+- Do say: exact terms — "UUID session", "postgres_changes", "RPC function", "issue request"
